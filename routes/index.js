@@ -2,11 +2,19 @@
 *	Routing for the main app
 */
 
-var express = require('express');
+/*var express = require('express');
 var routes = express.Router();
 
-routes.get('/', function(req,res){
-	res.send('Hello World!');
+var pjson = require('../package.json');
+
+
+routes.get('/login', function(req, res){
+	//req.session.lastPage = '/login';
+	res.render("main", {'app_version': pjson.version});
 });
 
-module.exports = routes;
+routes.get('/', function(req,res){
+	res.render("main", {'app_version': pjson.version});
+});
+
+module.exports = routes;*/

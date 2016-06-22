@@ -11,6 +11,9 @@
   "dependencies": {
     "ejs": "^2.4.2",
     "express": "^4.14.0",
+    "express-mysql-session": "^1.1.1",
+    "express-session": "^1.13.0",
+    "mysql": "^2.11.1",
     "sequelize": "^3.23.3"
   }
 }

@@ -1,0 +1,62 @@
+body,html {
+	height: 100%;
+    width: 100%;
+}
+body {
+	background-color: #272727;
+	color: #FFF;
+	-webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+    font-family: OpenSans-Cond;
+    src: url(../fonts/OpenSans-CondLight.ttf);
+}
+
+h1 {
+    font-family: 'Quattrocento Sans', sans-serif;
+	color: #c3b71e;
+	font-weight: lighter;
+	font-size: 24px;
+	letter-spacing: 2px;
+	margin: 0;
+}
+
+.fitted-button {
+	border-radius: 0px;
+	text-transform: uppercase;
+	color: #001b38;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.content-outer {
+	display: table;
+	height: 100%;
+	width: 100%;
+}
+.content-inner {
+	display: table-cell;
+	vertical-align: middle;
+	height: 100%;
+	width: 100%;
+	position: relative;
+}
+.content-header {
+	background-color: #dedede;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	z-index: 0;
+	color: #272727;
+	text-align: right;
+	padding: 10px;
+}
+
+.blurb-container {
+	position: relative;
+	padding: 20px;
+	display: inline-block;
+	z-index: 999;
+}

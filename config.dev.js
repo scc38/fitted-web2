@@ -1,3 +1,4 @@
+exports.port = "3000";
 exports.db = {
 	"host": "127.0.0.1",
 	"database": "FITTED_DB",

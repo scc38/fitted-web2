@@ -40,6 +40,10 @@ app.get('/login', function(req, res){
 	res.render("main", {'app_version': pjson.version});
 });
 
+app.get('/start', function(req, res){
+	res.render("start", {'app_version': pjson.version});
+});
+
 app.get('/', function(req,res){
 	res.render("main", {'app_version': pjson.version});
 });

@@ -63,30 +63,27 @@ window.fbAsyncInit = function() {
     });
   }*/
 </script>
-<body>
+<div class="content-header"><img src="static/img/facebook_logo.png"></div>
 <div align="center">
+	<span class="blurb-container">
+		<h1>Fitted lets you find personal trainers in your area and sync up sessions with your friends.</h1>
+		<br><br>
+		<!--<button type="button" class="btn btn-lg btn-default fitted-button">
+			<span class="facebook-btn"><i class="fa fa-facebook" aria-hidden="true"></i></span>
+				Sign in
+		</button>-->
 
-<div id="circle">
-	<img src="static/img/yoga3.jpg" id="header-circle-image">
-	<div id="header-text">FITTED<Br>
-	<span style="font-size: 8px;">
-		<i class="fa fa-circle" aria-hidden="true"></i>
-		<i class="fa fa-circle" aria-hidden="true"></i>
-		<i class="fa fa-circle" aria-hidden="true"></i>
+		<!--<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
+		</fb:login-button>-->
+
+		<a href="./start"><button class="btn login_btn">Get Started</button></a><br><br>
+		<button class="btn login_btn">Log In</button>
+
+				
+		<!--<button type="button" class="btn btn-lg btn-default fitted-button login_btn">Sign up with Facebook</button><br><Br>
+		<button type="button" class="btn btn-lg btn-default fitted-button login_btn">Sign in with Facebook</button>-->
 	</span>
-
-	</div>
 </div>
-<div id="circle-block"></div>
 
-<div class="blurb-container">
-	<h1>
-		Fitted lets you find exercise options in your area and sync up sessions with your friends.
-	</h1>
-</div>
-<button class="btn facebook_btn">Log In with Facebook</button><br>
-<span style="font-size: 12px;"><i class="fa fa-info-circle" aria-hidden="true"></i> We don't post anything to Facebook.</span>
-
-</div>
 </body>
 </html>

@@ -9,11 +9,15 @@
   "author": "sovresat@umich.edu (sarah ovresat)",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
     "ejs": "^2.4.2",
     "express": "^4.14.0",
     "express-mysql-session": "^1.1.1",
     "express-session": "^1.13.0",
     "mysql": "^2.11.1",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.1",
     "sequelize": "^3.23.3"
   }
 }

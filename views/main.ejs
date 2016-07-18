@@ -33,6 +33,12 @@ var statusChangeCallback = function(response){
 }
 
 
+function checkLoginState() {
+	FB.login(function(response){
+		console.log(response);
+	});
+}
+
 window.fbAsyncInit = function() {
 	FB.init({
 	  appId      : '672245366249588',
@@ -40,9 +46,9 @@ window.fbAsyncInit = function() {
 	  version    : 'v2.6'
 	});
 
-	/*FB.getLoginStatus(function(response){
+	FB.getLoginStatus(function(response){
 		statusChangeCallback(response);
-	});*/
+	});
 };
 
 (function(d, s, id){
@@ -67,9 +73,9 @@ window.fbAsyncInit = function() {
 <div align="center">
 
 <div id="circle">
-	<img src="static/img/yoga3.jpg" id="header-circle-image">
+	<img src="static/img/yoga3.jpg" id="header-circle-image" class="header-circle-image-filtered">
 	<div id="header-text">FITTED<Br>
-	<span style="font-size: 8px;">
+	<span style="font-size: 8px; display: none;">
 		<i class="fa fa-circle" aria-hidden="true"></i>
 		<i class="fa fa-circle" aria-hidden="true"></i>
 		<i class="fa fa-circle" aria-hidden="true"></i>
@@ -84,7 +90,7 @@ window.fbAsyncInit = function() {
 		Fitted lets you find exercise options in your area and sync up sessions with your friends.
 	</h1>
 </div>
-<button class="btn facebook_btn">Log In with Facebook</button><br>
+<a href="/auth/facebook"><button class="btn facebook_btn">Log In with Facebook</button></a><br>
 <span style="font-size: 12px;"><i class="fa fa-info-circle" aria-hidden="true"></i> We don't post anything to Facebook.</span>
 
 </div>

@@ -17,6 +17,8 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 app.use('/static', express.static('public'));
+app.use(bodyParser.json()); // support json encoded bodies
+//app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 
 /*//MySQLsession
 var connection = mysql.createConnection(config.db);
@@ -64,7 +66,7 @@ passport.use(new FacebookStrategy({
 ))
 
 app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({ secret: 'keyboard cat', key: 'sid'}));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -101,23 +103,112 @@ app.get('/logout', function(req, res){
 });
 
 app.get('/login', function(req, res){
-	console.log("Not authenticated");
+	//console.log("Not authenticated");
 	res.redirect('/');
 });
 
 app.get('/account', ensureAuthenticated, function(req, res){
 	//console.log(req);
-	res.send("authenticated");
+	res.render("account", {'app_version': pjson.version});
 })
 
 app.get('/register', ensureAuthenticated, function(req, res){
-	//res.send("isAuth, register");
-	//console.log(req.user);
-	res.render("register", {'app_version': pjson.version, 'user': req.user});
+	/*	The user is already authenticated. Now we check to see if their facebook_id already
+		exists in the database.
+		If it does, then redirect to account page.
+	*/
+
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	var isRegistered = false;
+	connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
+		if(!err){
+			if(row.length <= 0){
+				//user does not yet exist, allow them to register
+				//so no redirect
+				res.render("register", {'app_version': pjson.version, 'user': req.user});
+			}
+			else {
+				//user exists. redirect them to main account page.
+				res.redirect('/account');
+			}
+		}
+		else {
+			console.log("Error querying database");
+		}
+
+		connection.end();
+	});
 });
 
-app.get('/regcomplete', ensureAuthenticated, function(req, res){
-	res.redirect('/');
+
+(function() {
+	Date.prototype.getMySQL = getMySQLDateTime;	
+	function getMySQLDateTime() {
+		var year, month, day, hours, minutes, seconds;
+		year = String(this.getFullYear());
+		month = String(this.getMonth() + 1);
+		if (month.length == 1) {
+			month = "0" + month;
+		}
+		day = String(this.getDate());
+		if (day.length == 1) {
+			day = "0" + day;
+		}
+		hours = String(this.getHours());
+		if (hours.length == 1) {
+			hours = "0" + hours;
+		}
+		minutes = String(this.getMinutes());
+		if (minutes.length == 1) {
+			minutes = "0" + minutes;
+		}
+		seconds = String(this.getSeconds());
+		if (seconds.length == 1) {
+			seconds = "0" + seconds;
+		}
+		// should return something like: 2011-06-16 13:36:00
+		return year + "-" + month + "-" + day + ' ' + hours + ':' + minutes + ':' + seconds;
+	}
+})();
+
+
+app.post('/regcomplete', ensureAuthenticated, function(req, res){
+	/*
+		This route is used when the client finishes registering, sending a POST req
+	*/
+
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	var data = req.body.data;
+	var birthdate = new Date(data.birthday).getMySQL();
+
+	var new_user = `INSERT INTO users (facebook_id, reg_date, firstname, lastname, birthdate, location, preferred_distance_miles) ` +
+		`VALUES( '${req.user.id}', NOW(), '${data.first_name}', '${data.last_name}', '${birthdate}', '${data.location}', '${data.travel_range}' )`
+
+	//create user in database and fill in fields
+	connection.query( new_user, function(err, row, fields){
+		if(!err){
+			console.log("query successful");
+			res.send('user created success')
+		}
+		else {
+			res.send('error creating user');
+		}
+		connection.end();
+	});
 });
 
 app.get('/', function(req,res){

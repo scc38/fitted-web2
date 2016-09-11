@@ -3,8 +3,8 @@ body,html {
     width: 100%;
 }
 body {
-	background-color: #2b2b2b;
-	color: #FFF;
+	background-color: #fff;
+	color: #2b2b2b;
 	-webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
@@ -21,7 +21,6 @@ a:hover { color: inherit; }
 h1 {
     font-family: 'Quattrocento Sans', sans-serif;
 	color: #7a7a7a;
-	color: #FFF;
 	font-weight: lighter;
 	font-size: 22px;
 	letter-spacing: 2px;
@@ -111,7 +110,7 @@ h1 {
 	opacity: .4;
 }
 #header-text {
-	color: #2b2b2b;
+	color: #fff;
 	z-index: 999;
 	position: relative;
 	top: -95px;
@@ -124,8 +123,8 @@ h1 {
 	height: 225px;
 }
 .fitted_button {
-	background-color: #FFF;
-	color: #2b2b2b !important;
+	background-color: #2b2b2b;
+	color: #fff !important;
 	height: 34px;
 	vertical-align: middle;
 	width: 240px;
@@ -175,7 +174,7 @@ a, * {
 	border-radius: 125px;
 	overflow: hidden;
 }
-.reg-user-profile img {
+.reg-user-profile img, .account-user-profile img {
 	width: 100%;
 }
 .reg-user-type {
@@ -188,4 +187,17 @@ a, * {
 	display: block;
 	font-family: 'Quattrocento Sans', sans-serif;
 	color: #2b2b2b !important;
+}
+
+.account-user-profile {
+	height: 130px;
+	width: 130px;
+	border-radius: 75px;
+	overflow: hidden;
+}
+.account-menu-select-list {
+	font-family: 'Quattrocento Sans', sans-serif;
+	text-transform: uppercase;
+	font-size: 18px;
+	line-height: 36px;
 }

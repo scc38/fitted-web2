@@ -28,22 +28,50 @@
 <body>
 <!--facebook code-->
 <script>
-var statusChangeCallback = function(response){
-	console.log(response);
-}
+$(document).ready(function(){
+
+	var statusChangeCallback = function(response){
+		console.log(response);
+	}
 
 
-window.fbAsyncInit = function() {
-	FB.init({
-	  appId      : '672245366249588',
-	  xfbml      : true,
-	  version    : 'v2.6'
-	});
+	function checkLoginState() {
+		FB.login(function(response){
+			console.log(response);
+		});
+	}
 
-	/*FB.getLoginStatus(function(response){
-		statusChangeCallback(response);
-	});*/
-};
+	window.fbAsyncInit = function() {
+		FB.init({
+		  appId      : '672245366249588',
+		  xfbml      : true,
+		  version    : 'v2.6'
+		});
+
+		var user_id, accessToken, signedRequest, expiresIn;
+
+		FB.getLoginStatus(function(response){
+			accessToken = response.authResponse.accessToken;
+			user_id = response.authResponse.userID;
+			signedRequest = response.authResponse.signedRequest;
+			expiresIn = response.authResponse.expiresIn;
+
+			FB.api("/" + user_id + "/", function(response){
+				console.log(response);
+			});
+
+			//Once we're logged in do more!
+			//Need to condense this into a batch request
+			FB.api("/" + user_id + "/picture?width=9999", 
+				function(response){
+					if (response && !response.error) {
+		        		document.getElementById("reg-user-profile-image").src = response.data.url;
+		      		}
+				}
+			);
+		});
+	}
+});
 
 (function(d, s, id){
  var js, fjs = d.getElementsByTagName(s)[0];
@@ -54,36 +82,26 @@ window.fbAsyncInit = function() {
 }(document, 'script', 'facebook-jssdk'));
 
 
-/*function testAPI() {
-    console.log('Welcome!  Fetching your information.... ');
-    FB.api('/me', function(response) {
-      console.log('Successful login for: ' + response.name);
-      document.getElementById('status').innerHTML =
-        'Thanks for logging in, ' + response.name + '!';
-    });
-  }*/
 </script>
-<div class="content-header"><img src="static/img/facebook_logo.png"></div>
+<body>
 <div align="center">
-	<span class="blurb-container">
-		<h1>Fitted lets you find personal trainers in your area and sync up sessions with your friends.</h1>
-		<br><br>
-		<!--<button type="button" class="btn btn-lg btn-default fitted-button">
-			<span class="facebook-btn"><i class="fa fa-facebook" aria-hidden="true"></i></span>
-				Sign in
-		</button>-->
+	<br>
+	<h1>Menu</h1><br>
 
-		<!--<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-		</fb:login-button>-->
+	<div class="account-user-profile">
+		<img id="reg-user-profile-image">
+	</div>
+	<br>
+	<div class="account-menu-select-list">
+		Your Profile<br>
+		Your Friend's Calendar<br>
+		Trainer List<br>
+		Upcoming Classes<br>
+		Class History<br>
+		Give Feedback<br>
+		<a href="/logout">Logout</a>
+	</div>
 
-		<a href="./start"><button class="btn login_btn">Get Started</button></a><br><br>
-		<button class="btn login_btn">Log In</button>
-
-				
-		<!--<button type="button" class="btn btn-lg btn-default fitted-button login_btn">Sign up with Facebook</button><br><Br>
-		<button type="button" class="btn btn-lg btn-default fitted-button login_btn">Sign in with Facebook</button>-->
-	</span>
 </div>
-
 </body>
 </html>

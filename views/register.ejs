@@ -99,6 +99,7 @@ window.fbAsyncInit = function() {
 				//out more information from.
 				//revisit this later
 				$("#reg_location").val(response.location.name);
+				$("#reg_distance").val("10 mi");
 				}
 			}
 		);
@@ -151,7 +152,7 @@ window.fbAsyncInit = function() {
 			</div>
 			<div class="input-group">
 				<span class="input-group-addon reg-group-inp">
-					<h1>LastName</h1>
+					<h1>Last Name</h1>
 				</span>
 				<input type="text" class="form-control regInp_age" placeholder="Sue" id="inp_lastName">
 			</div><br>
@@ -173,7 +174,7 @@ window.fbAsyncInit = function() {
 			<h1>Your Location</h1>
 			<input type="text" class="regInp_age" id="reg_location" style="text-align:center;" placeholder="Ann Arbor, Michigan"><br>
 			<br><h1>Travel Range</h1>
-			<input type="text" class="regInp_age" id="reg_location" style="text-align:center;" placeholder="10 mi"><Br><br>
+			<input type="text" class="regInp_age" id="reg_distance" style="text-align:center;" placeholder="10 mi"><Br><br>
 
 			<h1>These will affect what is initially offered for you.</h1>
 			<!--<div id="map" style="width:400px; height: 260px;"></div>
@@ -192,7 +193,8 @@ window.fbAsyncInit = function() {
 			</script>-->
 			<p><br>
 			<h1>Is this correct?</h1><br>
-			<button class="btn fitted_button slick-next">Yes, continue</button><br>
+			<!--<button class="btn fitted_button slick-next">Yes, continue</button><br>-->
+			<button class="btn fitted_button" id="reg_completed">Complete</button><br>
 			<span style="font-size: 12px;" class="slick-prev">
 				Back
 			</span>
@@ -200,26 +202,24 @@ window.fbAsyncInit = function() {
 		</div>
 	</div>
 
-	<div><br>
+	<!--<div><br>
 		<h1>Are You...</h1><br>
-		<!--<button class="reg-user-type">A Student</button><br>
-		<button class="reg-user-type">An Instructor</button>-->
 		<button type="button" class="btn btn-primary reg-user-type" data-toggle="button" aria-pressed="false" autocomplete="off">
 			<h1 style="color: #2b2b2b; font-size: 28px;">A Student</h1>
 			Students can get started right away!
 		</button><br>
-		<button type="button" class="btn btn-primary reg-user-type" data-toggle="button" aria-pressed="false" autocomplete="off">
+		<button type="button" class="btn btn-primary reg-user-type" id="reg_instructor" data-toggle="button" aria-pressed="false" autocomplete="off">
 			<h1 style="color: #2b2b2b; font-size: 28px;">An Instructor</h1>
 			Instructors will have to verify with us.
 		</button>
 		<p><br>
 			<h1>Is this correct?</h1><br>
-			<a href="/regcomplete"><button class="btn fitted_button">Complete</button></a><br>
+			<button class="btn fitted_button" id="reg_completed">Complete</button><br>
 			<span style="font-size: 12px;" class="slick-prev">
 				Back
 			</span>
 		</p>
-	</div>
+	</div>-->
 </div>
 
 <script>
@@ -231,6 +231,31 @@ window.fbAsyncInit = function() {
 		});
 		$(".slick-prev").mouseup(function(){
 			$('.register-slick').slick("slickPrev");
+		});
+
+		$("#reg_completed").mouseup(function(){
+			var reg_data = {
+				"data": {
+					"first_name": $('#inp_firstName').val(),
+					"last_name": $('#inp_lastName').val(),
+					"birthday": $('#reg_birthday').val(),
+					"location": $('#reg_location').val(),
+					"travel_range": $('#reg_distance').val(),
+				},
+			}
+			//POST it
+			$.ajax({
+				type: "POST",
+				url: "/regcomplete",
+				data: JSON.stringify(reg_data),
+				contentType: 'application/json',
+				dataType: 'json',
+				processData: false,
+				contentType: "application/json; charset=utf-8",
+				complete: function(data){
+					window.location.replace('/account');
+				}
+			});
 		});
 	});
 </script>

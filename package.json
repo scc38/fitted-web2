@@ -1,4 +1,5 @@
 {
+  "engines" : { "node" : "6.2.2" },
   "name": "fitted-web",
   "version": "0.0.1",
   "description": "web prototype for FITTED",

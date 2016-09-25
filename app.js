@@ -57,6 +57,7 @@ passport.use(new FacebookStrategy({
 	},
 	function(accessToken, refreshToken, profile, done){
 		process.nextTick(function() {
+			console.log(profile);
 			if(config.db.use_database === 'true'){
 				//database code- check whether user exists or not using profile.id
 			}
@@ -181,7 +182,7 @@ app.get('/register', ensureAuthenticated, function(req, res){
 
 app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	/*
-		This route is used when the client finishes registering, sending a POST req
+		This route is used when the client finishes registering, via POST req
 	*/
 
 	var connection = mysql.createConnection({
@@ -193,8 +194,11 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	connection.connect();
 
 	var data = req.body.data;
+	var facebook_id = req.user.id;
+	var first_name = data.first_name;
+	var last_name = data.last_name;
 	var birthdate = new Date(data.birthday).getMySQL();
-
+	//sql injection vulnerablity-fix
 	var new_user = `INSERT INTO users (facebook_id, reg_date, firstname, lastname, birthdate, location, preferred_distance_miles) ` +
 		`VALUES( '${req.user.id}', NOW(), '${data.first_name}', '${data.last_name}', '${birthdate}', '${data.location}', '${data.travel_range}' )`
 

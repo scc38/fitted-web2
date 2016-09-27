@@ -103,36 +103,6 @@ window.fbAsyncInit = function() {
 			}
 		);
 
-		//Last name
-		/*FB.api('/' + user_id + "?fields=last_name&accessToken=" + accessToken,
-		function(response){
-			if(response && !response.error) {
-				$("#inp_lastName").val(response.last_name);
-				}
-			}
-		);*/
-
-		//Birthday
-		/*FB.api('/' + user_id + "?fields=birthday&accessToken=" + accessToken,
-		function(response){
-			if(response && !response.error) {
-				//$("#reg_birthday").val(response.birthday);
-				}
-			}
-		);
-
-		FB.api('/' + user_id + "?fields=location&accessToken=" + accessToken,
-		function(response){
-			if(response && !response.error) {
-				//response.location object has an id value which we can find
-				//out more information from.
-				//revisit this later
-				//$("#reg_location").val(response.location.name);
-				//$("#reg_distance").val("10 mi");
-				}
-			}
-		);*/
-
 	});
 };
 
@@ -151,14 +121,6 @@ window.fbAsyncInit = function() {
 	var user_id = <%=user.id%>;
 	//getProfilePicture(user_id);
 </script>
-
-<!--<div align="center">
-<br>
-<h1>FITTED</h1>
-<br>
-<div class="reg-user-profile">
-	<img id="reg-user-profile-image">
-</div>-->
 
 <div class="reg-header" align="center">
 	<span style="width: 50%;display:inline-block;">
@@ -200,9 +162,6 @@ window.fbAsyncInit = function() {
 			<div class="reg-inp-group-title">
 				Birthday
 			</div>
-			<!--<input type="text" class="regInp regInp-single" placeholder="MM" id="reg_month">
-			<input type="text" class="regInp regInp-single" placeholder="DD" id="reg_day">
-			<input type="text" class="regInp regInp-single" placeholder="YY" id="reg_year">-->
 			<select class="selectMM" id="reg_bday_mm">
 			 	<option value="01">January</option>
   				<option value="02">February</option>

@@ -65,7 +65,8 @@ $(document).ready(function(){
 			FB.api("/" + user_id + "/picture?width=9999", 
 				function(response){
 					if (response && !response.error) {
-		        		document.getElementById("reg-user-profile-image").src = response.data.url;
+		        		//document.getElementById("reg-user-profile-image").src = response.data.url;
+		        		$('.app_user_icon img').attr('src', response.data.url);
 		      		}
 				}
 			);
@@ -85,23 +86,107 @@ $(document).ready(function(){
 </script>
 <body>
 <div align="center">
-	<br>
-	<h1>Menu</h1><br>
-
-	<div class="account-user-profile">
-		<img id="reg-user-profile-image">
-	</div>
-	<br>
-	<div class="account-menu-select-list">
+	<div class="app_menu">
+		<div class="app_user_icon">
+			<img>
+		</div>
 		Your Profile<br>
-		Your Friend's Calendar<br>
-		Trainer List<br>
+		Your Friends' Calendar<br>
+		List of Trainers<br>
 		Upcoming Classes<br>
 		Class History<br>
 		Give Feedback<br>
-		<a href="/logout">Logout</a>
+		<a href="/logout">Logout</a><br>
 	</div>
 
+	<div class="app_header" align="center">
+		<span class="app_title app_header_left">Fitted</span>
+		<span class="app_title app_header_middle" id="app_title">Upcoming Classes</span>
+		<span class="app_title app_header_right" id="app_hamburger">
+			<span class="app_menu_icon"><i class="fa fa-bars" aria-hidden="true"></i></span>
+		</span>
+	</div>
+
+	<div class="app_body">
+		<!-- here we are gonna make a request to server api for classes -->
+		<section>
+			<h4>Today</h4>
+
+			<div class="fitted_class" align="center">
+				<b>11:00 AM</b> - 60 min<br>
+				<div class="fitted_class_instructor" align="left">
+					<span class="fitted_class_instructor_left">
+						<div class="fitted_class_instructor_icon">
+						</div>
+					</span>
+					<span class="fitted_class_instructor_right">
+						Josie Squatmoore<br>
+						<span class="instructor-subtitle"><i>Cardio & Strength</i></span>
+					</span>
+				</div>
+				<div style="clear:both;"></div>
+				<button class="btn fitted_button fitted_button-selected">Invite Friends</button>
+			</div>
+		</section>
+
+		<section>
+			<h4>Tues 2/4</h4>
+
+			<div class="fitted_class" align="center">
+				<b>11:00 AM</b> - 60 min<br>
+				<div class="fitted_class_instructor" align="left">
+					<span class="fitted_class_instructor_left">
+						<div class="fitted_class_instructor_icon">
+						</div>
+					</span>
+					<span class="fitted_class_instructor_right">
+						Josie Squatmoore<br>
+						<span class="instructor-subtitle"><i>Cardio & Strength</i></span>
+					</span>
+				</div>
+				<div style="clear:both;"></div>
+				<button class="btn fitted_button fitted_button-selected">Invite Friends</button>
+			</div>
+		</section>
+
+		<section>
+			<h4>Wed 2/5</h4>
+
+			<div class="fitted_class" align="center">
+				<b>12:00 PM</b> - 60 min<br>
+				<div class="fitted_class_instructor" align="left">
+					<span class="fitted_class_instructor_left">
+						<div class="fitted_class_instructor_icon">
+						</div>
+					</span>
+					<span class="fitted_class_instructor_right">
+						Josie Squatmoore<br>
+						<span class="instructor-subtitle"><i>Cardio & Strength</i></span>
+					</span>
+				</div>
+				<div style="clear:both;"></div>
+				<button class="btn fitted_button fitted_button-selected">Invite Friends</button>
+			</div>
+		</section>
+	</div>
 </div>
 </body>
+
+<script>
+	$(document).ready(function(){
+		$("#app_hamburger").mouseup(function(){
+			if(!$('.app_menu').hasClass('show_menu')){
+				//display menu
+				$('.app_menu').addClass("show_menu");
+				$('#app_title').html('Menu')
+			}
+			else {
+				//hide menu
+				$('.app_menu').removeClass('show_menu');
+				$('#app_title').html('Upcoming Classes')
+			}
+		});
+	});
+</script>
+
 </html>

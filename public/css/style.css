@@ -1,7 +1,37 @@
+@font-face {
+    font-family: 'OpenSans-Cond';
+    src: url(../fonts/OpenSans-CondLight.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: 'BalooBhaina';
+	src: url('../fonts/BalooBhaina-Regular.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Assistant';
+	src: url('../fonts/Assistant-Regular.ttf') format('truetype');
+	font-weight: normal;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Assistant';
+	src: url('../fonts/Assistant-Bold.ttf') format('truetype');
+	font-weight: bolder;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'Assistant';
+	src: url('../fonts/Assistant-Light.ttf') format('truetype');
+	font-weight: lighter;
+	font-style: normal;
+}
+
 body,html {
 	height: 100%;
     width: 100%;
     font-family: 'Assistant', sans-serif;
+    overflow-x: none;
 }
 body {
 	background-color: #fff;
@@ -10,36 +40,6 @@ body {
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
 }
-
-@font-face {
-    font-family: 'OpenSans-Cond';
-    src: url(../fonts/OpenSans-CondLight.ttf);
-}
-
-@font-face {
-	font-family: 'BalooBhaina';
-	src: url('../fonts/BalooBhaina-Regular.ttf');
-}
-
-@font-face {
-	font-family: 'Assistant';
-	src: '../fonts/Assistant-Regular.ttf';
-	font-weight: normal;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'Assistant';
-	src: '../fonts/Assistant-Bold.ttf';
-	font-weight: bolder;
-	font-style: normal;
-}
-@font-face {
-	font-family: 'Assistant';
-	src: '../fonts/Assistant-Light.ttf';
-	font-weight: lighter;
-	font-style: normal;
-}
-
 
 a { color: inherit;}
 a:hover { color: inherit; }

@@ -9,8 +9,27 @@ var FacebookStrategy = require('passport-facebook').Strategy;
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-
 var pjson = require('./package.json'); //for version number
+
+//sequelize connection
+/*var Sequelize = require('sequelize')
+  , sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
+      dialect: "mysql",
+      port:    3306,
+    });
+
+sequelize
+  .authenticate()
+  .then(function(err) {
+    console.log('Connection has been established successfully.');
+  }, function (err) { 
+    console.log('Unable to connect to the database:', err);
+  });
+*/
+
+
+
+
 
 var app = express();
 
@@ -18,28 +37,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 app.use('/static', express.static('public'));
 app.use(bodyParser.json()); // support json encoded bodies
-//app.use(bodyParser.urlencoded({extended: true})); // support encoded bodies
 
-/*//MySQLsession
-var connection = mysql.createConnection(config.db);
-var sessionStore = new MySQLStore({
-	host: config.db.host,
-	port: config.db.port,
-	user: config.db.username,
-	password: config.db.password,
-	database: config.db.database,
-	checkExpirationInterval: 900000,
-	expiration: 86400000,
-	createDatabaseTable: true,
-	schema: {
-		tableName: 'sessions',
-		columnNames: {
-			session_id: 'session_id',
-			expires: 'expires',
-			data: 'data'
-		}
-	}
-});*/
 
 //set up Passport session
 passport.serializeUser(function(user, done){
@@ -57,9 +55,10 @@ passport.use(new FacebookStrategy({
 	},
 	function(accessToken, refreshToken, profile, done){
 		process.nextTick(function() {
-			console.log(profile);
 			if(config.db.use_database === 'true'){
 				//database code- check whether user exists or not using profile.id
+				//behavior: should only go to account page if user has an account in the database
+				//currently goes to account page even if user does not have anncount, but is authenticated with facebook
 			}
 			return done(null, profile);
 		});
@@ -195,12 +194,13 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 
 	var data = req.body.data;
 	var facebook_id = req.user.id;
-	var first_name = data.first_name;
-	var last_name = data.last_name;
+	var display_name = data.display_name;
+	var email = data.email;
 	var birthdate = new Date(data.birthday).getMySQL();
-	//sql injection vulnerablity-fix
-	var new_user = `INSERT INTO users (facebook_id, reg_date, firstname, lastname, birthdate, location, preferred_distance_miles) ` +
-		`VALUES( '${req.user.id}', NOW(), '${data.first_name}', '${data.last_name}', '${birthdate}', '${data.location}', '${data.travel_range}' )`
+	var location = parseInt(data.location);
+	//sql injection vulnerablity-fix this
+	var new_user = `INSERT INTO users (facebook_id, reg_date, display_name, email, birthdate, location) ` +
+		`VALUES( '${req.user.id}', NOW(), '${display_name}', '${email}', '${birthdate}', '${location}' )`
 
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){
@@ -211,6 +211,9 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 		else {
 			res.send('error creating user');
 		}
+
+		if(err != null) console.log(err);
+
 		connection.end();
 	});
 });

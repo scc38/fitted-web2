@@ -24,6 +24,18 @@
 
     <script src="static/js/slick.min.js"></script>
  	<title>FITTED web <%= app_version %></title>
+
+ 	<script>
+ 	function isNumberKey(evt)
+       {
+          var charCode = (evt.which) ? evt.which : evt.keyCode;
+          if (charCode != 46 && charCode > 31 
+            && (charCode < 48 || charCode > 57))
+             return false;
+
+          return true;
+       }
+ 	</script>
 </head>
 <body>
 <!--facebook code-->
@@ -32,7 +44,7 @@ $(document).ready(function(){
 
 function checkLoginState() {
 	FB.login(function(response){
-		console.log(response);
+		//console.log(response);
 	});
 }
 
@@ -52,7 +64,7 @@ window.fbAsyncInit = function() {
 		expiresIn = response.authResponse.expiresIn;
 
 		FB.api("/" + user_id + "/", function(response){
-			console.log(response);
+			//console.log(response);
 		})
 
 		//Once we're logged in do more!
@@ -61,33 +73,50 @@ window.fbAsyncInit = function() {
 			function(response){
 				if (response && !response.error) {
 	        		document.getElementById("reg-user-profile-image").src = response.data.url;
+	        		$(".reg-friend-img").attr('src', response.data.url);
 	      		}
 			}
 		);
 
-		//First name
-		FB.api('/' + user_id + "?fields=first_name&accessToken=" + accessToken,
+		/* 	request
+			first_name
+			last_name
+			birthday
+			location
+		*/
+		FB.api('/' + user_id + "?fields=first_name,last_name,birthday,location,email&accessToken=" + accessToken,
 		function(response){
 			if(response && !response.error) {
-				$("#inp_firstName").val(response.first_name);
+				//fill in inputs
+				$('#reg_displayName').val(response.first_name + " " + response.last_name);
+				$('#reg_email').val(response.email);
+
+				//need to figure out the zip code stuff...complicated?
+
+				//birthday
+				var bday = response.birthday;
+				bday = bday.split("/");
+				$("#reg_bday_mm").val(bday[0]);
+				$("#reg_bday_dd").val(bday[1]);
+				$("#reg_bday_yyyy").val(bday[2]);
 				}
 			}
 		);
 
 		//Last name
-		FB.api('/' + user_id + "?fields=last_name&accessToken=" + accessToken,
+		/*FB.api('/' + user_id + "?fields=last_name&accessToken=" + accessToken,
 		function(response){
 			if(response && !response.error) {
 				$("#inp_lastName").val(response.last_name);
 				}
 			}
-		);
+		);*/
 
 		//Birthday
-		FB.api('/' + user_id + "?fields=birthday&accessToken=" + accessToken,
+		/*FB.api('/' + user_id + "?fields=birthday&accessToken=" + accessToken,
 		function(response){
 			if(response && !response.error) {
-				$("#reg_birthday").val(response.birthday);
+				//$("#reg_birthday").val(response.birthday);
 				}
 			}
 		);
@@ -98,11 +127,11 @@ window.fbAsyncInit = function() {
 				//response.location object has an id value which we can find
 				//out more information from.
 				//revisit this later
-				$("#reg_location").val(response.location.name);
-				$("#reg_distance").val("10 mi");
+				//$("#reg_location").val(response.location.name);
+				//$("#reg_distance").val("10 mi");
 				}
 			}
-		);
+		);*/
 
 	});
 };
@@ -123,124 +152,116 @@ window.fbAsyncInit = function() {
 	//getProfilePicture(user_id);
 </script>
 
-<div align="center">
+<!--<div align="center">
 <br>
 <h1>FITTED</h1>
 <br>
 <div class="reg-user-profile">
 	<img id="reg-user-profile-image">
+</div>-->
+
+<div class="reg-header" align="center">
+	<span style="width: 50%;display:inline-block;">
+		Confirm or Edit Your Profile Details
+	</span>
+</div>
+<div class="reg-user-profile-container" align="center">
+	<div class="reg-user-profile">
+		<img id="reg-user-profile-image">
+	</div>
 </div>
 
-<div class="register-slick">
-	<div>
-		<div class="blurb-container">
-			<h1>
-				<span style="font-size: 28px;">Welcome, <%= user.displayName %>!</span><br><br>
-				<p>To finish setting up your account, we'll need to know a few more things about you.</p>
-			</h1>
-		</div><br>
-		<button class="btn fitted_button slick-next">That's fine</button>
-	</div>
-
-	<div>
-		<div class="blurb-container">
-			<div class="input-group reg-group">
-				<span class="input-group-addon reg-group-inp">
-					<h1>First Name</h1>
-				</span>
-				<input type="text" class="form-control regInp_age" placeholder="Mary" id="inp_firstName">
+<div class="reg-body" align="center">
+	<span>
+		<button class="btn fitted_button fitted_button-selected">I'm a student</button><br>
+		<button class="btn fitted_button">I'm an instructor</button>
+	</span>
+	<br><br>
+	<div align="left">
+		<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Name
 			</div>
-			<div class="input-group">
-				<span class="input-group-addon reg-group-inp">
-					<h1>Last Name</h1>
-				</span>
-				<input type="text" class="form-control regInp_age" placeholder="Sue" id="inp_lastName">
-			</div><br>
-			<h1>My birthday is</h1>
-			<input type="text" class="regInp_age" id="reg_birthday" style="text-align:center;" placeholder="01/01/1900">
-			<br><br>
-			<p>
-				<h1>Is this correct?</h1><br>
-				<button class="btn fitted_button slick-next">Yes, continue</button><br>
-				<span style="font-size: 12px;" class="slick-prev">
-					Back
-				</span>
-			</p>
+			<input type="text" class="regInp" placeholder="Olivia Coolio" id="reg_displayName">
+		</div>
+		<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Email
+			</div>
+			<input type="text" class="regInp" placeholder="olivia.culpo@gmail.com" id="reg_email">
+		</div>
+		<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Location (zip code)
+			</div>
+			<input type="text" class="regInp" placeholder="30307" value="30307" id="reg_location" onkeypress="return isNumberKey(event)" maxlength="15">
+		</div>
+		<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Birthday
+			</div>
+			<!--<input type="text" class="regInp regInp-single" placeholder="MM" id="reg_month">
+			<input type="text" class="regInp regInp-single" placeholder="DD" id="reg_day">
+			<input type="text" class="regInp regInp-single" placeholder="YY" id="reg_year">-->
+			<select class="selectMM" id="reg_bday_mm">
+			 	<option value="01">January</option>
+  				<option value="02">February</option>
+  				<option value="03">March</option>
+  				<option value="04">April</option>
+  				<option value="05">May</option>
+  				<option value="06">June</option>
+  				<option value="07">July</option>
+  				<option value="08">August</option>
+  				<option value="09">September</option>
+  				<option value="10">October</option>
+  				<option value="11">November</option>
+  				<option value="12">December</option>
+			</select>
+
+			<input type="text" class="regInp regInp-DD" placeholder="DD" id="reg_bday_dd" onkeypress="return isNumberKey(event)" maxlength="2">
+			<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">
+		</div>
+
+		<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Friends on Fitted
+			</div>
+			<div class="reg-friend">
+				<div class="reg-friend-icon">
+					<img class='reg-friend-img'>
+				</div>
+				Sarah
+			</div>
+			<div class="reg-friend">
+				<div class="reg-friend-icon">
+					<img class='reg-friend-img'>
+				</div>
+				Becca
+			</div>
+			<div align="center">
+				<button class="btn fitted_button slick-next">Invite your friends</button>
+			</div>
 		</div>
 	</div>
-
-	<div>
-		<div class="blurb-container">
-			<h1>Your Location</h1>
-			<input type="text" class="regInp_age" id="reg_location" style="text-align:center;" placeholder="Ann Arbor, Michigan"><br>
-			<br><h1>Travel Range</h1>
-			<input type="text" class="regInp_age" id="reg_distance" style="text-align:center;" placeholder="10 mi"><Br><br>
-
-			<h1>These will affect what is initially offered for you.</h1>
-			<!--<div id="map" style="width:400px; height: 260px;"></div>
-			<script>
-			function initMap() {
-			var mapDiv = document.getElementById('map');
-			var map = new google.maps.Map(mapDiv, {
-			    center: {lat: 44.540, lng: -78.546},
-			    zoom: 8
-			});
-			}
-			</script>
-			<script
-			async defer
-				src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyDt1IP6Z5Y5UQJRA4hJyLf0hm4BqGc467A&callback=initMap">	
-			</script>-->
-			<p><br>
-			<h1>Is this correct?</h1><br>
-			<!--<button class="btn fitted_button slick-next">Yes, continue</button><br>-->
-			<button class="btn fitted_button" id="reg_completed">Complete</button><br>
-			<span style="font-size: 12px;" class="slick-prev">
-				Back
-			</span>
-			</p>
-		</div>
-	</div>
-
-	<!--<div><br>
-		<h1>Are You...</h1><br>
-		<button type="button" class="btn btn-primary reg-user-type" data-toggle="button" aria-pressed="false" autocomplete="off">
-			<h1 style="color: #2b2b2b; font-size: 28px;">A Student</h1>
-			Students can get started right away!
-		</button><br>
-		<button type="button" class="btn btn-primary reg-user-type" id="reg_instructor" data-toggle="button" aria-pressed="false" autocomplete="off">
-			<h1 style="color: #2b2b2b; font-size: 28px;">An Instructor</h1>
-			Instructors will have to verify with us.
-		</button>
-		<p><br>
-			<h1>Is this correct?</h1><br>
-			<button class="btn fitted_button" id="reg_completed">Complete</button><br>
-			<span style="font-size: 12px;" class="slick-prev">
-				Back
-			</span>
-		</p>
-	</div>-->
 </div>
+
+<div class="reg-confirm" id="reg_completed">
+	This is fine. Let's see classes
+</div>
+
 
 <script>
 	$(document).ready(function(){
-		$('.register-slick').slick({arrows: false, infinite: false, draggable: false});
-
-		$(".slick-next").mouseup(function(){
-			$('.register-slick').slick("slickNext");
-		});
-		$(".slick-prev").mouseup(function(){
-			$('.register-slick').slick("slickPrev");
-		});
 
 		$("#reg_completed").mouseup(function(){
+			var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
 			var reg_data = {
 				"data": {
-					"first_name": $('#inp_firstName').val(),
-					"last_name": $('#inp_lastName').val(),
-					"birthday": $('#reg_birthday').val(),
+					"display_name": $('#reg_displayName').val(),
+					"email": $("#reg_email").val(),
+					"birthday": bday_str,
 					"location": $('#reg_location').val(),
-					"travel_range": $('#reg_distance').val(),
+					"isInstructor": false
 				},
 			}
 			//POST it

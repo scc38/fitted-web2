@@ -31,7 +31,8 @@ body,html {
 	height: 100%;
     width: 100%;
     font-family: 'Assistant', sans-serif;
-    overflow-x: none;
+    max-width: 100%;
+    overflow-x: hidden;
 }
 body {
 	background-color: #fff;
@@ -438,7 +439,7 @@ select {
 	color: #FFF;
 	font-size: 20px;
 	line-height: 55px;
-	top: -100%;
+	top: -999%;
 	-webkit-transition: all ease-in-out .3s;
     -moz-transition: all ease-in-out .3s;
     -o-transition: all ease-in-out .3s;

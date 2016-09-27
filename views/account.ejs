@@ -90,12 +90,12 @@ $(document).ready(function(){
 		<div class="app_user_icon">
 			<img>
 		</div>
-		Your Profile<br>
-		Your Friends' Calendar<br>
-		List of Trainers<br>
-		Upcoming Classes<br>
-		Class History<br>
-		Give Feedback<br>
+		<span class="app_menu_link" id="menu_profile">Your Profile</span><br>
+		<span class="app_menu_link" id="menu_friendCalendar">Your Friends' Calendar</span><br>
+		<span class="app_menu_link" id="menu_trainerList">List of Trainers</span><br>
+		<span class="app_menu_link" id="menu_upcomingClasses">Upcoming Classes</span><br>
+		<span class="app_menu_link" id="menu_classHistory">Class History</span><br>
+		<span class="app_menu_link" id="menu_feedback">Give Feedback</span><br>
 		<a href="/logout">Logout</a><br>
 	</div>
 
@@ -108,72 +108,59 @@ $(document).ready(function(){
 	</div>
 
 	<div class="app_body">
-		<!-- here we are gonna make a request to server api for classes -->
-		<section>
-			<h4>Today</h4>
-
-			<div class="fitted_class" align="center">
-				<b>11:00 AM</b> - 60 min<br>
-				<div class="fitted_class_instructor" align="left">
-					<span class="fitted_class_instructor_left">
-						<div class="fitted_class_instructor_icon">
-						</div>
-					</span>
-					<span class="fitted_class_instructor_right">
-						Josie Squatmoore<br>
-						<span class="instructor-subtitle"><i>Cardio & Strength</i></span>
-					</span>
-				</div>
-				<div style="clear:both;"></div>
-				<button class="btn fitted_button fitted_button-selected">Invite Friends</button>
-			</div>
-		</section>
-
-		<section>
-			<h4>Tues 2/4</h4>
-
-			<div class="fitted_class" align="center">
-				<b>11:00 AM</b> - 60 min<br>
-				<div class="fitted_class_instructor" align="left">
-					<span class="fitted_class_instructor_left">
-						<div class="fitted_class_instructor_icon">
-						</div>
-					</span>
-					<span class="fitted_class_instructor_right">
-						Josie Squatmoore<br>
-						<span class="instructor-subtitle"><i>Cardio & Strength</i></span>
-					</span>
-				</div>
-				<div style="clear:both;"></div>
-				<button class="btn fitted_button fitted_button-selected">Invite Friends</button>
-			</div>
-		</section>
-
-		<section>
-			<h4>Wed 2/5</h4>
-
-			<div class="fitted_class" align="center">
-				<b>12:00 PM</b> - 60 min<br>
-				<div class="fitted_class_instructor" align="left">
-					<span class="fitted_class_instructor_left">
-						<div class="fitted_class_instructor_icon">
-						</div>
-					</span>
-					<span class="fitted_class_instructor_right">
-						Josie Squatmoore<br>
-						<span class="instructor-subtitle"><i>Cardio & Strength</i></span>
-					</span>
-				</div>
-				<div style="clear:both;"></div>
-				<button class="btn fitted_button fitted_button-selected">Invite Friends</button>
-			</div>
-		</section>
+		<!-- ajax fill in -->
 	</div>
 </div>
 </body>
 
 <script>
 	$(document).ready(function(){
+		var currentPageMenu = "menu_upcomingClasses";
+		function getMenuName(id){
+			var page = {
+				'name': 'test',
+				'html': ''
+			};
+
+			switch(id){
+				case "menu_profile": 
+					page['name'] = "Your Profile";
+					page['html'] = "profile.html";
+					break;
+				case "menu_friendCalendar":
+					page['name'] = "Your Friends' Calendar";
+					page['html'] = "friends_calendar.html";
+					break;
+				case "menu_trainerList":
+					page['name'] = "List of Trainers";
+					page['html'] = "trainer_list.html";
+					break;
+				case "menu_upcomingClasses":
+					page['name'] = "Upcoming Classes";
+					page['html'] = "classes.html";
+					break;
+				case "menu_classHistory":
+					page['name'] = "Class History";
+					page['html'] = "class_history.html";
+					break;
+				case "menu_feedback":
+					page['name'] = "Feedback";
+					page['html'] = "feedback.html";
+					break;
+			}
+			console.log(page);
+			return page;
+		}
+
+		function loadPage(page){
+			//blabla.html
+			$.get('/static/html/' + page, function(data){
+				$('.app_body').html(data);
+			});
+		}
+
+		loadPage('classes.html');
+
 		$("#app_hamburger").mouseup(function(){
 			if(!$('.app_menu').hasClass('show_menu')){
 				//display menu
@@ -183,8 +170,17 @@ $(document).ready(function(){
 			else {
 				//hide menu
 				$('.app_menu').removeClass('show_menu');
-				$('#app_title').html('Upcoming Classes')
+				$('#app_title').html(getMenuName(currentPageMenu).name);
 			}
+		});
+
+		$('.app_menu_link').mouseup(function(){
+			$('.app_menu').removeClass('show_menu');
+			currentPageMenu = $(this).attr('id');
+			var page = getMenuName(currentPageMenu);
+			//change title, load
+			$('#app_title').html(page.name);
+			loadPage(page.html);
 		});
 	});
 </script>

@@ -40,7 +40,6 @@ body {
 	font-style: normal;
 }
 
-
 a { color: inherit;}
 a:hover { color: inherit; }
 
@@ -148,6 +147,9 @@ h1 {
 	height: 100%;
 	width: 100%;
 	background-color: #252525;
+	background-image: url('/static/img/yoga3.jpg');
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 .bg-graphic img {
 	height: 100%;

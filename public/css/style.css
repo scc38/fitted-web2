@@ -438,7 +438,7 @@ select {
 	color: #FFF;
 	font-size: 20px;
 	line-height: 55px;
-	top: -100%;
+	top: -999%;
 	-webkit-transition: all ease-in-out .3s;
     -moz-transition: all ease-in-out .3s;
     -o-transition: all ease-in-out .5s;

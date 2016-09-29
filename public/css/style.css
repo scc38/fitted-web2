@@ -391,10 +391,17 @@ select {
 .app_menu_icon:hover { cursor:pointer; }
 .app_body {
 	padding: 20px;
-	padding-top: 60px;
+	top: -20px;
 	position: relative;
 	z-index: 1;
 	font-size: 16px;
+}
+.app_body_top {
+	-webkit-transition: all ease-in-out .2s;
+    -moz-transition: all ease-in-out .2s;
+    -o-transition: all ease-in-out .2s;
+    transition: all ease-in-out .2s;
+	top: 40px !important;
 }
 .app_body section {
 	margin-bottom: 30px;
@@ -442,10 +449,10 @@ select {
 	font-size: 20px;
 	line-height: 55px;
 	top: -999%;
-	-webkit-transition: all ease-in-out .3s;
-    -moz-transition: all ease-in-out .3s;
-    -o-transition: all ease-in-out .5s;
-    transition: all ease-in-out .5s;
+	-webkit-transition: all ease-in-out .2s;
+    -moz-transition: all ease-in-out .2s;
+    -o-transition: all ease-in-out .2s;
+    transition: all ease-in-out .2s;
 }
 .show_menu {
 	top: 0 !important;

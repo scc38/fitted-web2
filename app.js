@@ -180,6 +180,9 @@ app.get('/register', ensureAuthenticated, function(req, res){
 })();
 
 
+//POSTS
+
+//on complete registration
 app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	/*
 		This route is used when the client finishes registering, via POST req
@@ -218,6 +221,66 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 		connection.end();
 	});
 });
+
+
+//account routes- make so only server can access
+//about, class_history, clases, feedback, friends_calendar, profile, trainer_list
+//GETS
+app.get('/getprofile', ensureAuthenticated, function(req, res){
+	res.render("account/profile", {'app_version': pjson.version});
+});
+app.get('/getabout', ensureAuthenticated, function(req, res){
+	res.render("account/about", {'app_version': pjson.version});
+});
+app.get('/getclasshistory', ensureAuthenticated, function(req, res){
+	res.render("account/class_history", {'app_version': pjson.version});
+});
+app.get('/getclasses', ensureAuthenticated, function(req, res){
+	res.render("account/upcoming_classes", {'app_version': pjson.version});
+});
+app.get('/getfriendscalendar', ensureAuthenticated, function(req, res){
+	res.render("account/friends_calendar", {'app_version': pjson.version});
+});
+app.get('/gettrainerlist', ensureAuthenticated, function(req, res){
+	res.render("account/trainer_list", {'app_version': pjson.version});
+});
+app.get('/getfeedback', ensureAuthenticated, function(req, res){
+	res.render("account/feedback", {'app_version': pjson.version});
+});
+
+
+//on update profile
+app.post('/updateprofile', ensureAuthenticated, function(req, res){
+	res.send("update profile success");
+});
+
+
+
+//
+
+//api routes
+
+//GET LOCATIONS
+app.get('/api/locations*', function(req, res){
+	res.json('api/locations/');
+});
+
+//GET CLASSES
+app.get('/api/classes*', function(req, res){
+	res.json("api/classes/");
+});
+
+//GET INSTRUCTORS
+app.get('/api/instructors*', function(req,res){
+	res.json("api/instructors/");
+});
+
+//GET USERS
+app.get('/api/users*', function(req, res){
+	//optional params
+	res.json("api/users");
+});
+
 
 app.get('/', function(req,res){
 	res.render("main", {'app_version': pjson.version});

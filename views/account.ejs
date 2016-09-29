@@ -103,7 +103,7 @@ $(document).ready(function(){
 		<span class="app_title app_header_left">Fitted</span>
 		<span class="app_title app_header_middle" id="app_title">Upcoming Classes</span>
 		<span class="app_title app_header_right" id="app_hamburger">
-			<span class="app_menu_icon"><i class="fa fa-bars" aria-hidden="true"></i></span>
+			<span class="app_menu_icon"><i class="fa fa-bars" aria-hidden="true" id="menu_btn"></i></span>
 		</span>
 	</div>
 
@@ -125,51 +125,68 @@ $(document).ready(function(){
 			switch(id){
 				case "menu_profile": 
 					page['name'] = "Your Profile";
-					page['html'] = "profile.html";
+					page['html'] = "/getprofile/";
 					break;
 				case "menu_friendCalendar":
 					page['name'] = "Your Friends' Calendar";
-					page['html'] = "friends_calendar.html";
+					page['html'] = "/getfriendscalendar";
 					break;
 				case "menu_trainerList":
 					page['name'] = "List of Trainers";
-					page['html'] = "trainer_list.html";
+					page['html'] = "/gettrainerlist";
 					break;
 				case "menu_upcomingClasses":
 					page['name'] = "Upcoming Classes";
-					page['html'] = "classes.html";
+					page['html'] = "/getclasses";
 					break;
 				case "menu_classHistory":
 					page['name'] = "Class History";
-					page['html'] = "class_history.html";
+					page['html'] = "/getclasshistory";
 					break;
 				case "menu_feedback":
 					page['name'] = "Feedback";
-					page['html'] = "feedback.html";
+					page['html'] = "/getfeedback";
 					break;
 			}
 			return page;
 		}
 
-		function loadPage(page){
+		function loadPage(page, isMenu){
 			//blabla.html
-			$.get('/static/html/' + page, function(data){
+			$.get(page, function(data){
+				if($('.app_body').hasClass('app_body_top')) {
+					$('.app_body').removeClass('app_body_top');
+				}
 				$('.app_body').html(data);
+				if(isMenu){
+						$(".app_menu").on('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', 
+					    function() {
+					        $('.app_body').addClass('app_body_top');
+					    });
+					}
+				else {
+					$('.app_body').addClass('app_body_top');
+				}
 			});
 		}
 
-		loadPage('classes.html');
+		loadPage('/getclasses', false);
+		$('.app_body').addClass('app_body_top');
 
 		$("#app_hamburger").mouseup(function(){
 			if(!$('.app_menu').hasClass('show_menu')){
 				//display menu
 				$('.app_menu').addClass("show_menu");
 				$('#app_title').html('Menu')
+				$('#menu_btn').removeClass();
+				$("#menu_btn").addClass("fa fa-times");
 			}
 			else {
 				//hide menu
 				$('.app_menu').removeClass('show_menu');
 				$('#app_title').html(getMenuName(currentPageMenu).name);
+				$('#menu_btn').removeClass();
+				$("#menu_btn").addClass("fa fa-bars");
 			}
 		});
 
@@ -179,7 +196,9 @@ $(document).ready(function(){
 			var page = getMenuName(currentPageMenu);
 			//change title, load
 			$('#app_title').html(page.name);
-			loadPage(page.html);
+			$('#menu_btn').removeClass();
+			$("#menu_btn").addClass("fa fa-bars");
+			loadPage(page.html, true);
 		});
 	});
 </script>

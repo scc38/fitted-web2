@@ -224,12 +224,41 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	});
 });
 
+app.get('/regclassprefs', ensureAuthenticated, function(req, res){
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	var isRegistered = false;
+	connection.query('SELECT * FROM exercise_types', function(err, row, fields){
+		if(!err){
+			if(row.length <= 0){
+				//?!? nothing
+				//res.render("register", {'app_version': pjson.version, 'user': req.user});
+			}
+			else {
+				//got class types
+				res.render("register_preferences", {'app_version': pjson.version, 'class_types': row});
+			}
+		}
+		else {
+			console.log("Error querying database");
+		}
+
+		connection.end();
+	});
+
+});
+
 
 //account routes- make so only server can access
 //about, class_history, clases, feedback, friends_calendar, profile, trainer_list
 //GETS
 app.get('/getprofile', ensureAuthenticated, function(req, res){
-
 	var connection = mysql.createConnection({
 	host: config.db.host,
 	user: config.db.username,

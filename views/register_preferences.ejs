@@ -118,101 +118,37 @@ window.fbAsyncInit = function() {
 
 <body>
 <script>
-	var user_id = <%=user.id%>;
 	//getProfilePicture(user_id);
 </script>
 
-<div class="reg-header_a reg-body-bottom" align="center">
+<div class="reg-header_b" align="center">
 	<span style="width: 50%;display:inline-block;">
-		Confirm or Edit Your Profile Details
+		What are your class type preferences?
 	</span>
-</div>
-<div class="reg-user-profile-container" align="center">
-	<div class="reg-user-profile">
-		<img id="reg-user-profile-image">
-	</div>
 </div>
 
 <div class="reg-body" align="center">
-	<span>
-		<button class="btn fitted_button fitted_button-selected">I'm a student</button><br>
-		<button class="btn fitted_button">I'm an instructor</button>
-	</span>
-	<br><br>
-	<div align="left">
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Name
-			</div>
-			<input type="text" class="regInp" placeholder="Olivia Coolio" id="reg_displayName">
-		</div>
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Email
-			</div>
-			<input type="text" class="regInp" placeholder="olivia.culpo@gmail.com" id="reg_email">
-		</div>
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Location (zip code)
-			</div>
-			<input type="text" class="regInp" placeholder="30307" value="30307" id="reg_location" onkeypress="return isNumberKey(event)" maxlength="15">
-		</div>
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Birthday
-			</div>
-			<select class="selectMM" id="reg_bday_mm">
-			 	<option value="01">January</option>
-  				<option value="02">February</option>
-  				<option value="03">March</option>
-  				<option value="04">April</option>
-  				<option value="05">May</option>
-  				<option value="06">June</option>
-  				<option value="07">July</option>
-  				<option value="08">August</option>
-  				<option value="09">September</option>
-  				<option value="10">October</option>
-  				<option value="11">November</option>
-  				<option value="12">December</option>
-			</select>
+	<h4>
+		Select the types of classes you enjoy so we can keep adding instructors that fit your needs.
+	</h4><br>
 
-			<input type="text" class="regInp regInp-DD" placeholder="DD" id="reg_bday_dd" onkeypress="return isNumberKey(event)" maxlength="2">
-			<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">
-		</div>
+	<% for(var i = 0; i < class_types.length; i++) { %>
+		<%if (class_types[i].isActive) { %>
+		<button class="btn fitted_classpref_button" class_id='<%= class_types[i].id %>'><%= class_types[i].name %></button>
+		<% } %>
+	<% } %>
 
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Friends on Fitted
-			</div>
-			<div class="reg-friend">
-				<div class="reg-friend-icon">
-					<img class='reg-friend-img'>
-				</div>
-				Sarah
-			</div>
-			<div class="reg-friend">
-				<div class="reg-friend-icon">
-					<img class='reg-friend-img'>
-				</div>
-				Becca
-			</div>
-			<div align="center">
-				<button class="btn fitted_button slick-next">Invite your friends</button>
-			</div>
-		</div>
-	</div>
 </div>
 
 <div class="reg-confirm" id="reg_completed">
-	This is fine. Let's see classes
+	See classes!
 </div>
 
 
 <script>
 	$(document).ready(function(){
 
-		$("#reg_completed").mouseup(function(){
+		/*$("#reg_completed").mouseup(function(){
 			var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
 			var reg_data = {
 				"data": {
@@ -236,6 +172,15 @@ window.fbAsyncInit = function() {
 					window.location.replace('/account');
 				}
 			});
+		});*/
+
+		$('.fitted_classpref_button').mouseup(function(){
+			if($(this).hasClass('fitted_classpref_button-selected')){
+				$(this).removeClass('fitted_classpref_button-selected');
+			}
+			else {
+				$(this).addClass('fitted_classpref_button-selected');
+			}
 		});
 	});
 </script>

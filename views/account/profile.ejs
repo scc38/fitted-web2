@@ -1,3 +1,48 @@
-VERSION <%= app_version %><br><br>
+<div align="left">
+	<div class="reg-inp-group-title" style="margin-bottom: 5px;">
+		Registered <%=user['reg_date']%>
+	</div>
 
-profile
+	<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Display Name
+			</div>
+		<input type="text" class="regInp" value="<%=user['display_name']%>" id="reg_displayName">
+	</div>
+
+	<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Email
+			</div>
+		<input type="text" class="regInp" value="<%=user['email']%>" id="reg_displayName">
+	</div>
+
+	<div class="reg-inp-group">
+				<div class="reg-inp-group-title">
+					Birthday
+				</div>
+				<select class="selectMM" id="reg_bday_mm">
+				 	<option value="01">January</option>
+	  				<option value="02">February</option>
+	  				<option value="03">March</option>
+	  				<option value="04">April</option>
+	  				<option value="05">May</option>
+	  				<option value="06">June</option>
+	  				<option value="07">July</option>
+	  				<option value="08">August</option>
+	  				<option value="09">September</option>
+	  				<option value="10">October</option>
+	  				<option value="11">November</option>
+	  				<option value="12">December</option>
+				</select>
+
+				<input type="text" class="regInp regInp-DD" placeholder="DD" id="reg_bday_dd" onkeypress="return isNumberKey(event)" maxlength="2">
+				<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">
+	</div>
+
+	<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
+				Payment Info
+			</div>
+	</div>
+</div>

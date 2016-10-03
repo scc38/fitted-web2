@@ -29,8 +29,6 @@ sequelize
 
 
 
-
-
 var app = express();
 
 app.set('views', path.join(__dirname, 'views'));
@@ -51,9 +49,11 @@ passport.deserializeUser(function(obj, done){
 passport.use(new FacebookStrategy({
 	clientID: config.facebook.api_id,
 	clientSecret: config.facebook.api_secret,
-	callbackURL: config.facebook.callback_url
+	callbackURL: config.facebook.callback_url,
+	enableProof: true
 	},
 	function(accessToken, refreshToken, profile, done){
+		//async
 		process.nextTick(function() {
 			if(config.db.use_database === 'true'){
 				//database code- check whether user exists or not using profile.id
@@ -82,11 +82,6 @@ app.get('/start', function(req, res){
 	res.render("start", {'app_version': pjson.version});
 });*/
 
-app.get('/auth/facebook', 
-	passport.authenticate('facebook', {
-		scope: ['user_friends', 'email', 'user_actions.fitness', 'user_birthday', 'user_location', 'user_events']
-	})
-);
 app.get('/auth/facebook/callback',
 	passport.authenticate('facebook', {
 		successRedirect: '/register',
@@ -95,7 +90,14 @@ app.get('/auth/facebook/callback',
 	}),
 	function(req, res){
 		res.redirect('/register');
-});
+	}
+);
+
+app.get('/auth/facebook', 
+	passport.authorize('facebook', {
+		scope: ['user_friends', 'email', 'user_actions.fitness', 'user_birthday', 'user_location', 'user_events']
+	})
+);
 
 app.get('/logout', function(req, res){
 	req.logout();
@@ -227,23 +229,72 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 //about, class_history, clases, feedback, friends_calendar, profile, trainer_list
 //GETS
 app.get('/getprofile', ensureAuthenticated, function(req, res){
-	res.render("account/profile", {'app_version': pjson.version});
+
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	var isRegistered = false;
+	connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
+		if(!err){
+			if(row.length <= 0){
+				//user does not yet exist, allow them to register
+				//so no redirect
+				res.send("error user DNE");
+			}
+			else {
+				user_obj = row[0];
+				var reg_date = String(user_obj['reg_date']);
+				var d = new Date(Date.parse(reg_date));
+				
+				var monthNames = ["January", "February", "March", "April", "May", "June",
+					"July", "August", "September", "October", "November", "December"
+				];
+
+				var month = monthNames[d.getMonth()];
+				var day = d.getDay();
+				var year = d.getFullYear();
+
+				var new_reg_date = String(month) + " " + String(day) + ", " + String(year);
+			
+				user_obj['reg_date'] = new_reg_date;
+
+				//user exists. redirect them to main account page.
+				res.render("account/profile", {'app_version': pjson.version, 'user': row[0]});
+			}
+		}
+		else {
+			console.log("Error querying database");
+		}
+
+		connection.end();
+	});
 });
+
 app.get('/getabout', ensureAuthenticated, function(req, res){
 	res.render("account/about", {'app_version': pjson.version});
 });
+
 app.get('/getclasshistory', ensureAuthenticated, function(req, res){
 	res.render("account/class_history", {'app_version': pjson.version});
 });
+
 app.get('/getclasses', ensureAuthenticated, function(req, res){
 	res.render("account/upcoming_classes", {'app_version': pjson.version});
 });
+
 app.get('/getfriendscalendar', ensureAuthenticated, function(req, res){
 	res.render("account/friends_calendar", {'app_version': pjson.version});
 });
+
 app.get('/gettrainerlist', ensureAuthenticated, function(req, res){
 	res.render("account/trainer_list", {'app_version': pjson.version});
 });
+
 app.get('/getfeedback', ensureAuthenticated, function(req, res){
 	res.render("account/feedback", {'app_version': pjson.version});
 });

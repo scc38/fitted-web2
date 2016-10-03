@@ -100,7 +100,7 @@ $(document).ready(function(){
 	</div>
 
 	<div class="app_header" align="center">
-		<span class="app_title app_header_left">Fitted</span>
+		<span class="app_title app_header_left" id="menu_about">Fitted</span>
 		<span class="app_title app_header_middle" id="app_title">Upcoming Classes</span>
 		<span class="app_title app_header_right" id="app_hamburger">
 			<span class="app_menu_icon"><i class="fa fa-bars" aria-hidden="true" id="menu_btn"></i></span>
@@ -147,6 +147,9 @@ $(document).ready(function(){
 					page['name'] = "Feedback";
 					page['html'] = "/getfeedback";
 					break;
+				case "menu_about":
+					page['name'] = "About";
+					page['html'] = "/getabout";
 			}
 			return page;
 		}
@@ -190,7 +193,7 @@ $(document).ready(function(){
 			}
 		});
 
-		$('.app_menu_link').mouseup(function(){
+		$('.app_menu_link, #menu_about').mouseup(function(){
 			$('.app_menu').removeClass('show_menu');
 			currentPageMenu = $(this).attr('id');
 			var page = getMenuName(currentPageMenu);

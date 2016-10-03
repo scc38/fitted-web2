@@ -468,7 +468,6 @@ select {
 }
 .app_user_icon img { width: 100%; }
 
-.app_menu_link:hover { 
-	cursor:pointer; 
-	text-decoration: underline;
+.app_menu_link:hover, #menu_about:hover { 
+	cursor:pointer;
 }

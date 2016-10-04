@@ -62,11 +62,17 @@ function checkConfirmed(db_id, callback){
 	connection.query(`SELECT confirmed FROM users WHERE id='${db_id}'`, function(err, row, fields){
 		connection.end();
 		if(!err){
-			var val = row[0]['confirmed'];
+			var val;
+			try{
+				val = row[0]['confirmed'];
+			}
+			catch(err){
+				val = 0;
+			}
 			callback(val);
 		}
 		else {
-			callback(null);
+			callback(0);
 		}
 	});
 }
@@ -143,12 +149,14 @@ passport.use(new FacebookStrategy({
 						db_id = insertNewUser(profile.id);
 						user_obj['db_id'] = db_id; //need to be updated w/ callback
 						user_obj['isInstructor'] = 0;
+						user_obj['confirmed'] = false;
 						return done(null, user_obj);
 					}
 					else {
 						//we have user by fb id, proceed
 						user_obj['db_id'] = row[0]['id'];
 						user_obj['isInstructor'] = row[0]['isInstructor'];
+						user_obj["confirmed"] = row[0]['confirmed']
 						return done(null, user_obj);
 					}
 				}
@@ -206,6 +214,8 @@ app.get('/login', function(req, res){
 });
 
 app.get('/account*', ensureAuthenticated, function(req, res){
+	//console.log("account");
+	//console.log(req.user);
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
@@ -223,6 +233,9 @@ app.get('/register', ensureAuthenticated, function(req, res){
 		exists in the database and that it is confirmed.
 		If it does, then redirect to account page.
 	*/
+
+	//console.log("register");
+	//console.log(req.user);
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -250,7 +263,9 @@ app.get('/register', ensureAuthenticated, function(req, res){
 					else {
 						if(row[0]['confirmed']){
 							//user has been confirmed by the registration process. redirect to account page
-							res.redirect('/account');
+							//res.redirect('/account');
+							req.logout();
+							res.redirect('/auth/facebook');
 						}
 						else {
 							//user is not confirmed. allow them to finish registering first.
@@ -322,11 +337,12 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	var email = data.email;
 	var birthdate = new Date(data.birthday).getMySQL();
 	var location = parseInt(data.location);
+	var isInstructor = data.isInstructor;
 	//sql injection vulnerablity-fix this
 	/*var new_user = `UPDATE users SET (reg_date, display_name, email, birthdate, location, confirmed) ` +
 		`VALUES( NOW(), '${display_name}', '${email}', '${birthdate}', '${location}', 1 ) WHERE facebook_id = '${req.user.id}'`*/
 
-	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
+	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', isInstructor='${isInstructor}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
 
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){

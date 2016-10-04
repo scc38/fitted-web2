@@ -135,8 +135,8 @@ window.fbAsyncInit = function() {
 
 <div class="reg-body reg-body-bottom" align="center">
 	<span>
-		<button class="btn fitted_button fitted_button-selected">I'm a student</button><br>
-		<button class="btn fitted_button">I'm an instructor</button>
+		<button class="btn fitted_button fitted_button-selected" id="student_btn">I'm a student</button><br>
+		<button class="btn fitted_button" id="instructor_btn">I'm an instructor</button>
 	</span>
 	<br><br>
 	<div align="left">
@@ -212,15 +212,29 @@ window.fbAsyncInit = function() {
 <script>
 	$(document).ready(function(){
 
+		$('.fitted_button').mouseup(function(){
+			if($(this).attr('id') == 'instructor_btn'){
+				$('#student_btn').removeClass('fitted_button-selected');
+			}
+			else {
+				$('#instructor_btn').removeClass('fitted_button-selected');
+			}
+			$(this).addClass('fitted_button-selected');
+		});
+
 		$("#reg_completed").mouseup(function(){
 			var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
+			var isInstructor = 0;
+			if($("#instructor_btn").hasClass('fitted_button-selected')){
+				isInstructor = 1;
+			}
 			var reg_data = {
 				"data": {
 					"display_name": $('#reg_displayName').val(),
 					"email": $("#reg_email").val(),
 					"birthday": bday_str,
 					"location": $('#reg_location').val(),
-					"isInstructor": false
+					"isInstructor": isInstructor
 				},
 			}
 			//POST it

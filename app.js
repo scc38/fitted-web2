@@ -27,7 +27,7 @@ sequelize
   });
 */
 
-
+//
 
 var app = express();
 
@@ -45,6 +45,69 @@ passport.deserializeUser(function(obj, done){
 	done(null, obj);
 });
 
+/*	helper func for checking if a user is confirmed
+	may be a bad way to do this-
+	i wanted to save it in passport session instead
+	but it doesn't seem to want to allow me to update
+	a session after it's already been created.
+*/
+function checkConfirmed(db_id, callback){
+	var connection = mysql.createConnection({
+			host: config.db.host,
+			user: config.db.username,
+			password: config.db.password,
+			database: config.db.database
+			});
+	connection.connect();
+	connection.query(`SELECT confirmed FROM users WHERE id='${db_id}'`, function(err, row, fields){
+		connection.end();
+		if(!err){
+			var val = row[0]['confirmed'];
+			callback(val);
+		}
+		else {
+			callback(null);
+		}
+	});
+}
+
+
+//helper func for creating a new blank user in passport use
+function insertNewUser(facebook_id){
+	var connection = mysql.createConnection({
+			host: config.db.host,
+			user: config.db.username,
+			password: config.db.password,
+			database: config.db.database
+			});
+			connection.connect();
+
+	var insert_user_query = `INSERT INTO users (facebook_id) VALUES ('${facebook_id}');`;
+	var get_id_query = 'SELECT * FROM users WHERE facebook_id = ' + facebook_id;
+	connection.query(insert_user_query, function(err, row, fields){
+		if(!err){
+			//return row[0];
+		}
+		//else return err;
+	});
+
+	connection.query(get_id_query, function(err, row, fields){
+		connection.end();
+		if(!err){
+			if(row.length <= 0){
+				return null;
+			}
+			else{
+				return row[0]['facebook_id'];
+			}
+		}
+		else {
+			return null;
+		}
+	});
+
+	//return id;
+}
 
 passport.use(new FacebookStrategy({
 	clientID: config.facebook.api_id,
@@ -55,12 +118,46 @@ passport.use(new FacebookStrategy({
 	function(accessToken, refreshToken, profile, done){
 		//async
 		process.nextTick(function() {
-			if(config.db.use_database === 'true'){
-				//database code- check whether user exists or not using profile.id
-				//behavior: should only go to account page if user has an account in the database
-				//currently goes to account page even if user does not have anncount, but is authenticated with facebook
-			}
-			return done(null, profile);
+			//user has authenticated with facebook, now connect to db
+			//if fb_id user DNE create new user.
+			//Else select from user.
+
+			var connection = mysql.createConnection({
+			host: config.db.host,
+			user: config.db.username,
+			password: config.db.password,
+			database: config.db.database
+			});
+			connection.connect();
+
+			var isRegistered = false;
+			connection.query('SELECT * FROM users WHERE facebook_id=' + profile.id, function(err, row, fields){
+				var user_obj = {};
+				user_obj['id'] = profile.id;
+				user_obj['displayName'] = profile.displayName;
+				
+				connection.end();
+				if(!err){
+					if(row.length <= 0){
+						//user does not yet exist, create new base user
+						db_id = insertNewUser(profile.id);
+						user_obj['db_id'] = db_id; //need to be updated w/ callback
+						user_obj['isInstructor'] = 0;
+						return done(null, user_obj);
+					}
+					else {
+						//we have user by fb id, proceed
+						user_obj['db_id'] = row[0]['id'];
+						user_obj['isInstructor'] = row[0]['isInstructor'];
+						return done(null, user_obj);
+					}
+				}
+				else {
+					//error
+					return done(err);
+				}
+			});
+
 		});
 	}
 ))
@@ -108,45 +205,66 @@ app.get('/login', function(req, res){
 	res.redirect('/');
 });
 
-app.get('/account', ensureAuthenticated, function(req, res){
-	res.render("account", {'app_version': pjson.version});
-})
-app.get('/account/*', ensureAuthenticated, function(req, res){
-	res.render("account", {'app_version': pjson.version});
-})
+app.get('/account*', ensureAuthenticated, function(req, res){
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			res.render("account", {'app_version': pjson.version});
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+});
 
 app.get('/register', ensureAuthenticated, function(req, res){
 	/*	The user is already authenticated. Now we check to see if their facebook_id already
-		exists in the database.
+		exists in the database and that it is confirmed.
 		If it does, then redirect to account page.
 	*/
 
-	var connection = mysql.createConnection({
-	host: config.db.host,
-	user: config.db.username,
-	password: config.db.password,
-	database: config.db.database
-	});
-	connection.connect();
-
-	var isRegistered = false;
-	connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
-		if(!err){
-			if(row.length <= 0){
-				//user does not yet exist, allow them to register
-				//so no redirect
-				res.render("register", {'app_version': pjson.version, 'user': req.user});
-			}
-			else {
-				//user exists. redirect them to main account page.
-				res.redirect('/account');
-			}
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			res.redirect('/account');
 		}
 		else {
-			console.log("Error querying database");
-		}
+			//user is not confirmed, update user and confirm them
+			var connection = mysql.createConnection({
+			host: config.db.host,
+			user: config.db.username,
+			password: config.db.password,
+			database: config.db.database
+			});
+			connection.connect();
 
-		connection.end();
+			var isRegistered = false;
+			connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
+				if(!err){
+					if(row.length <= 0){
+						//user does not yet exist, allow them to register
+						//so no redirect
+						//res.render("register", {'app_version': pjson.version, 'user': req.user});
+					}
+					else {
+						if(row[0]['confirmed']){
+							//user has been confirmed by the registration process. redirect to account page
+							res.redirect('/account');
+						}
+						else {
+							//user is not confirmed. allow them to finish registering first.
+							res.render("register", {'app_version': pjson.version, 'user': req.user});
+						}
+					}
+				}
+				else {
+					console.log("Error querying database");
+				}
+
+				connection.end();
+			});
+		}
 	});
 });
 
@@ -205,17 +323,18 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	var birthdate = new Date(data.birthday).getMySQL();
 	var location = parseInt(data.location);
 	//sql injection vulnerablity-fix this
-	var new_user = `INSERT INTO users (facebook_id, reg_date, display_name, email, birthdate, location) ` +
-		`VALUES( '${req.user.id}', NOW(), '${display_name}', '${email}', '${birthdate}', '${location}' )`
+	/*var new_user = `UPDATE users SET (reg_date, display_name, email, birthdate, location, confirmed) ` +
+		`VALUES( NOW(), '${display_name}', '${email}', '${birthdate}', '${location}', 1 ) WHERE facebook_id = '${req.user.id}'`*/
+
+	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
 
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){
 		if(!err){
-			console.log("query successful");
-			res.send('user created success')
-		}
+			//console.log("query successful");
+			res.send('user update success');		}
 		else {
-			res.send('error creating user');
+			res.send('error updating user');
 		}
 
 		if(err != null) console.log(err);

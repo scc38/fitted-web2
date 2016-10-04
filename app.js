@@ -79,7 +79,7 @@ function checkConfirmed(db_id, callback){
 
 
 //helper func for creating a new blank user in passport use
-function insertNewUser(facebook_id){
+function insertNewUser(facebook_id, callback){
 	var connection = mysql.createConnection({
 			host: config.db.host,
 			user: config.db.username,
@@ -101,14 +101,14 @@ function insertNewUser(facebook_id){
 		connection.end();
 		if(!err){
 			if(row.length <= 0){
-				return null;
+				callback(null);
 			}
 			else{
-				return row[0]['facebook_id'];
+				callback(row[0]['id']);
 			}
 		}
 		else {
-			return null;
+			callback(null);
 		}
 	});
 
@@ -146,11 +146,12 @@ passport.use(new FacebookStrategy({
 				if(!err){
 					if(row.length <= 0){
 						//user does not yet exist, create new base user
-						db_id = insertNewUser(profile.id);
-						user_obj['db_id'] = db_id; //need to be updated w/ callback
-						user_obj['isInstructor'] = 0;
-						user_obj['confirmed'] = false;
-						return done(null, user_obj);
+						insertNewUser(profile.id, function(db_id){
+							user_obj['db_id'] = db_id;
+							user_obj['isInstructor'] = 0;
+							user_obj['confirmed'] = false;
+							return done(null, user_obj);
+						});
 					}
 					else {
 						//we have user by fb id, proceed
@@ -214,12 +215,12 @@ app.get('/login', function(req, res){
 });
 
 app.get('/account*', ensureAuthenticated, function(req, res){
-	//console.log("account");
-	//console.log(req.user);
+	console.log("account");
+	console.log(req.user);
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.render("account", {'app_version': pjson.version});
+			res.render("account", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
 		}
 		else {
 			//user is not confirmed
@@ -315,8 +316,6 @@ app.get('/register', ensureAuthenticated, function(req, res){
 })();
 
 
-//POSTS
-
 //on complete registration
 app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	/*
@@ -348,7 +347,17 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	connection.query( new_user, function(err, row, fields){
 		if(!err){
 			//console.log("query successful");
-			res.send('user update success');		}
+			/*req.user.db_id = "test";
+			req.login(req.user, function(error) {
+            	if (!error) {
+                // successfully serialized user to session
+                console.log('serialize sucess');
+	            }
+	        });	
+	        res.send('user update success');
+	        res.end();*/
+	        res.send('user update success');
+		}
 		else {
 			res.send('error updating user');
 		}
@@ -388,6 +397,36 @@ app.get('/regclassprefs', ensureAuthenticated, function(req, res){
 	});
 
 });
+
+app.post('/regclassprefscomplete', ensureAuthenticated, function(req, res){
+	var data = req.body;
+
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	for(var i = 0; i < data.length; i++){
+		var query = `INSERT INTO user_class_preferences (user_id, exercise_type_id) VALUES('${req.user.db_id}', '${data[i]}')`;
+
+		connection.query(query, function(err, row, fields){
+			
+			if(err) console.log(err);
+			else {
+				//res.send("success");
+			}
+		});
+	}
+
+	res.send("success");
+	connection.end();
+
+	//finally, mark user as confirmed in UPDATE query?
+});
+
 
 
 //account routes- make so only server can access
@@ -461,6 +500,10 @@ app.get('/gettrainerlist', ensureAuthenticated, function(req, res){
 
 app.get('/getfeedback', ensureAuthenticated, function(req, res){
 	res.render("account/feedback", {'app_version': pjson.version});
+});
+
+app.get('/getinstructor', ensureAuthenticated, function(req, res){
+	res.render("account/instructor", {'app_version': pjson.version});
 });
 
 

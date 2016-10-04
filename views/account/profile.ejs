@@ -1,4 +1,5 @@
 <div align="left">
+	<%=JSON.stringify(user)%>
 	<div class="reg-inp-group-title" style="margin-bottom: 5px;">
 		Registered <%=user['reg_date']%>
 	</div>
@@ -42,13 +43,26 @@
 
 	<div class="reg-inp-group">
 			<div class="reg-inp-group-title">
+				Account Type
+			</div>
+			<span>
+				<button class="btn fitted_button fitted_button-selected" id="student_btn">I'm a student</button>
+				<button class="btn fitted_button" id="instructor_btn">I'm an instructor</button>
+			</span>
+	</div><br>
+
+	<div class="reg-inp-group">
+			<div class="reg-inp-group-title">
 				Class Type Preferences
 			</div>
-	</div>
+	</div><br>
 
 	<div class="reg-inp-group">
 			<div class="reg-inp-group-title">
 				Payment Info
 			</div>
 	</div>
+</div>
+<div class="reg-confirm" id="reg_completed" style="left:0;">
+	Save Changes
 </div>

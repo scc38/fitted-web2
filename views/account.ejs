@@ -90,12 +90,17 @@ $(document).ready(function(){
 		<div class="app_user_icon">
 			<img>
 		</div>
+
 		<span class="app_menu_link" id="menu_profile">Your Profile</span><br>
+		<%if (isInstructor >= 1) { %>
+		<span class="app_menu_link" id="menu_instructor">Instructor</span><br>
+		<% } %>
 		<span class="app_menu_link" id="menu_friendCalendar">Your Friends' Calendar</span><br>
 		<span class="app_menu_link" id="menu_trainerList">List of Trainers</span><br>
 		<span class="app_menu_link" id="menu_upcomingClasses">Upcoming Classes</span><br>
 		<span class="app_menu_link" id="menu_classHistory">Class History</span><br>
 		<span class="app_menu_link" id="menu_feedback">Give Feedback</span><br>
+
 		<a href="/logout">Logout</a><br>
 	</div>
 
@@ -150,6 +155,11 @@ $(document).ready(function(){
 				case "menu_about":
 					page['name'] = "About";
 					page['html'] = "/getabout";
+				<%if (isInstructor >= 1) { %>
+				case "menu_instructor":
+					page['name'] = "Instructor";
+					page['html'] = "/getinstructor";
+				<% } %>
 			}
 			return page;
 		}

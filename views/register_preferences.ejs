@@ -71,8 +71,8 @@ window.fbAsyncInit = function() {
 		FB.api("/" + user_id + "/picture?width=9999", 
 			function(response){
 				if (response && !response.error) {
-	        		document.getElementById("reg-user-profile-image").src = response.data.url;
-	        		$(".reg-friend-img").attr('src', response.data.url);
+	        		//document.getElementById("reg-user-profile-image").src = response.data.url;
+	        		//$(".reg-friend-img").attr('src', response.data.url);
 	      		}
 			}
 		);
@@ -147,8 +147,8 @@ window.fbAsyncInit = function() {
 <script>
 	$(document).ready(function(){
 
-		/*$("#reg_completed").mouseup(function(){
-			var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
+		$("#reg_completed").mouseup(function(){
+			/*var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
 			var reg_data = {
 				"data": {
 					"display_name": $('#reg_displayName').val(),
@@ -157,21 +157,23 @@ window.fbAsyncInit = function() {
 					"location": $('#reg_location').val(),
 					"isInstructor": false
 				},
-			}
+			}*/
+			var selected = [];
+			$(".fitted_classpref_button-selected").each(function(i, obj){
+				selected.push($(obj).attr('class_id'));
+			});
+
 			//POST it
 			$.ajax({
 				type: "POST",
-				url: "/regcomplete",
-				data: JSON.stringify(reg_data),
-				contentType: 'application/json',
-				dataType: 'json',
-				processData: false,
-				contentType: "application/json; charset=utf-8",
+				url: "/regclassprefscomplete",
+				data: JSON.stringify(selected),
+				contentType: "application/json",
 				complete: function(data){
 					window.location.replace('/account');
 				}
 			});
-		});*/
+		});
 
 		$('.fitted_classpref_button').mouseup(function(){
 			if($(this).hasClass('fitted_classpref_button-selected')){

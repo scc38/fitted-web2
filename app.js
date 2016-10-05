@@ -215,8 +215,8 @@ app.get('/login', function(req, res){
 });
 
 app.get('/account*', ensureAuthenticated, function(req, res){
-	console.log("account");
-	console.log(req.user);
+	//console.log("account");
+	//console.log(req.user);
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
@@ -450,7 +450,7 @@ app.get('/getprofile', ensureAuthenticated, function(req, res){
 				res.send("error user DNE");
 			}
 			else {
-				user_obj = row[0];
+				/*user_obj = row[0];
 				var reg_date = String(user_obj['reg_date']);
 				var d = new Date(Date.parse(reg_date));
 				
@@ -464,7 +464,7 @@ app.get('/getprofile', ensureAuthenticated, function(req, res){
 
 				var new_reg_date = String(month) + " " + String(day) + ", " + String(year);
 			
-				user_obj['reg_date'] = new_reg_date;
+				user_obj['reg_date'] = new_reg_date;*/
 
 				//user exists. redirect them to main account page.
 				res.render("account/profile", {'app_version': pjson.version, 'user': row[0]});
@@ -506,7 +506,6 @@ app.get('/getinstructor', ensureAuthenticated, function(req, res){
 	res.render("account/instructor", {'app_version': pjson.version});
 });
 
-
 //on update profile
 app.post('/updateprofile', ensureAuthenticated, function(req, res){
 	res.send("update profile success");
@@ -525,7 +524,70 @@ app.get('/api/locations*', function(req, res){
 
 //GET CLASSES
 app.get('/api/classes*', function(req, res){
-	res.json("api/classes/");
+	//parse path
+	//params:day,month,year
+
+	//basic class object
+	/*var class_obj = {
+		id: '',
+		instructor_id: '',
+		instructor_name: '',
+		start_time: '',
+		end_time: '',
+		type_class: '',
+		name_class: '',
+		location_zip: '',
+		venue: '',
+		min_students: '',
+		max_students: '',
+		date_created: '',
+		price: '',
+		class_description: '',
+	};*/
+
+	/*var class_obj = {
+		id: '1',
+		instructor_id: '',
+		instructor_name: 'Lionel Messi',
+		start_time: '2016-10-05 H',
+		end_time: '12:00PM',
+		type_class: '',
+		name_class: '',
+		location_zip: '',
+		venue: '',
+		min_students: '',
+		max_students: '',
+		date_created: '',
+		price: '',
+		class_description: '',
+	};
+
+	var class_obj = {
+		id: '2',
+		instructor_id: '',
+		instructor_name: 'Lionel Messi',
+		start_time: '',
+		end_time: '',
+		type_class: '',
+		name_class: '',
+		location_zip: '',
+		venue: '',
+		min_students: '',
+		max_students: '',
+		date_created: '',
+		price: '',
+		class_description: '',
+	};*/
+
+
+	//connect to database
+	//look up class objects
+
+	//iterate through class objects and look up instructor name
+
+	var classes = {};
+
+	res.json(class_obj);
 });
 
 //GET INSTRUCTORS

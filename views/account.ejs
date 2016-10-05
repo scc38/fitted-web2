@@ -23,17 +23,26 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <script src="../static/js/moment.min.js"></script>
+
  	<title>FITTED web <%= app_version %></title>
 </head>
 <body>
 <!--facebook code-->
 <script>
+var isNumberKey = function(evt){
+          var charCode = (evt.which) ? evt.which : evt.keyCode;
+          if (charCode != 46 && charCode > 31 
+            && (charCode < 48 || charCode > 57))
+             return false;
+          return true;
+    }
+
 $(document).ready(function(){
 
 	var statusChangeCallback = function(response){
 		console.log(response);
 	}
-
 
 	function checkLoginState() {
 		FB.login(function(response){
@@ -84,7 +93,7 @@ $(document).ready(function(){
 
 
 </script>
-<body>
+
 <div align="center">
 	<div class="app_menu">
 		<div class="app_user_icon">
@@ -106,10 +115,15 @@ $(document).ready(function(){
 
 	<div class="app_header" align="center">
 		<span class="app_title app_header_left" id="menu_about">Fitted</span>
-		<span class="app_title app_header_middle" id="app_title">Upcoming Classes</span>
+		<span class="app_title app_header_middle" id="app_title" style="position: absolute; top: 20px;">Upcoming Classes</span>
 		<span class="app_title app_header_right" id="app_hamburger">
 			<span class="app_menu_icon"><i class="fa fa-bars" aria-hidden="true" id="menu_btn"></i></span>
-		</span>
+		</span><br>
+		<div id="header_calendar_nav">
+			<span class="glyphicon glyphicon-chevron-left header_calendar_nav_arrow" aria-hidden="true" id="date_left"></span>&nbsp;
+			<span id="header_date">date</span>
+			<span class="glyphicon glyphicon-chevron-right header_calendar_nav_arrow" aria-hidden="true" id="date_right"></span>
+		</div>
 	</div>
 
 	<div class="app_body">
@@ -120,6 +134,23 @@ $(document).ready(function(){
 
 <script>
 	$(document).ready(function(){
+		var current_time_view = moment();
+
+		function updateDate(){
+			$("#header_date").html( current_time_view.format("dddd MMMM Do, YYYY") );
+		}
+		updateDate();
+
+		$(".header_calendar_nav_arrow").mouseup(function(){
+			if($(this).attr('id') == "date_left"){
+				current_time_view = current_time_view.subtract(1, 'days');
+			}
+			else {
+				current_time_view = current_time_view.add(1, 'days');
+			}
+			updateDate();
+		});
+
 		var currentPageMenu = "menu_upcomingClasses";
 		function getMenuName(id){
 			var page = {
@@ -167,11 +198,16 @@ $(document).ready(function(){
 		function loadPage(page, isMenu){
 			//blabla.html
 			$.get(page, function(data){
-				if($('.app_body').hasClass('app_body_top')) {
-					$('.app_body').removeClass('app_body_top');
-				}
 				$('.app_body').html(data);
-				if(isMenu){
+				if(currentPageMenu == "menu_upcomingClasses"){
+					$('#header_calendar_nav').removeClass("hide");
+				}
+				else {
+					$('#header_calendar_nav').addClass("hide");
+					current_time_view = moment(); //Do we want to reset to the current time?
+					updateDate();
+				}
+				/*if(isMenu){
 						$(".app_menu").on('transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd', 
 					    function() {
 					        $('.app_body').addClass('app_body_top');
@@ -179,7 +215,7 @@ $(document).ready(function(){
 					}
 				else {
 					$('.app_body').addClass('app_body_top');
-				}
+				}*/
 			});
 		}
 
@@ -193,6 +229,7 @@ $(document).ready(function(){
 				$('#app_title').html('Menu')
 				$('#menu_btn').removeClass();
 				$("#menu_btn").addClass("fa fa-times");
+				$('#header_calendar_nav').addClass("hide");
 			}
 			else {
 				//hide menu

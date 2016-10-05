@@ -1,7 +1,10 @@
 <div align="left">
-	<%=JSON.stringify(user)%>
+	<%var json_data = JSON.parse(JSON.stringify(user))%>
 	<div class="reg-inp-group-title" style="margin-bottom: 5px;">
-		Registered <%=user['reg_date']%>
+		Registered <span id="registered_date"></span>
+	</div>
+	<div class="reg-inp-group-title" style="margin-bottom: 5px;">
+		Last logged in <span id="registered_date"></span>
 	</div>
 
 	<div class="reg-inp-group">
@@ -38,7 +41,14 @@
 				</select>
 
 				<input type="text" class="regInp regInp-DD" placeholder="DD" id="reg_bday_dd" onkeypress="return isNumberKey(event)" maxlength="2">
-				<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">
+				<!--<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">-->
+
+				<select class="selectMM" id="reg_bday_yyyy">
+					<% var start_year = 2017-100; var len = 100; %>
+					<% for(var i = start_year; i < start_year+len; i++) { %>
+						<option value="<%=i%>"><%=i%></option>
+					<% } %>
+				</select>
 	</div>
 
 	<div class="reg-inp-group">
@@ -66,3 +76,29 @@
 <div class="reg-confirm" id="reg_completed" style="left:0;">
 	Save Changes
 </div>
+
+<script>
+
+var reg_date = moment('<%= json_data["reg_date"] %>');
+var birthdate = moment('<%= json_data["birthdate"] %>');
+
+$(document).ready(function(){
+	//set registered date
+	$("#registered_date").html(reg_date.format("dddd MMMM Do, YYYY"));
+
+	//set last log in date
+
+	//set birthdate stuff
+	//month
+	var month = birthdate.format("MM");
+	$("#reg_bday_mm option[value=" + month + "]").attr("selected", "selected");
+
+	//day
+	$("#reg_bday_dd").val(birthdate.format("DD"));
+
+	//year
+	var year = birthdate.format("YYYY");
+	$("#reg_bday_yyyy option[value=" + year + "]").attr('selected', 'selected');
+});
+
+</script>

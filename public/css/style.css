@@ -393,7 +393,7 @@ select {
 
 .app_header {
 	background-color: #0AD981;
-	height: 40px;
+	min-height: 40px;
 	line-height: 40px; 
 	padding-left: 20px;
 	padding-right: 20px;
@@ -427,6 +427,18 @@ select {
 	letter-spacing: 1px;
 }
 .app_menu_icon:hover { cursor:pointer; }
+#header_calendar_nav {
+	font-size: 16px;
+	font-weight: bold;
+}
+.header_calendar_nav_arrow:hover {
+	cursor: pointer;
+}
+#header_date {
+	display: inline-block; 
+	width: 240px;
+}
+
 .app_body {
 	padding: 20px;
 	/*top: -20px;*/
@@ -451,11 +463,39 @@ select {
 	text-transform: uppercase;
 }
 .fitted_class {
-	background-color: #ccc;
-	width: 75%;
-	padding: 10px;
+	background-color: #fff;
+	width: 85%;
 	border-radius: 8px;
+	-webkit-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
+	-moz-box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
+	box-shadow: 0px 2px 4px 0px rgba(0,0,0,0.2);
+	overflow: hidden;
+	height: 220px;
+	position: relative;
 }
+.fitted_class_bg-circle {
+	width: 240px;
+	height: 240px;	border-radius: 120px;
+	position: absolute;
+	right: -120px;
+	z-index: 998;
+	top: -10px;
+}
+.fitted_class_content {
+	padding: 20px;
+	position: relative;
+	z-index: 999;
+	width: 70%;
+	height: 100%;
+}
+.fitted_class_type, .fitted_class_timestamp {
+	text-transform: uppercase;
+	font-weight: bold;
+}
+.fitted_class_description {
+	font-size: 24px;
+}
+
 .fitted_class_instructor { 
 	margin-top: 10px;
 	margin-bottom: 10px;

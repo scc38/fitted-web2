@@ -427,7 +427,77 @@ app.post('/regclassprefscomplete', ensureAuthenticated, function(req, res){
 	//finally, mark user as confirmed in UPDATE query?
 });
 
+//helper function to return class types
+function getClassTypes(callback){
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+	connection.query('SELECT * FROM exercise_types', function(err, row, fields){
+		connection.end();
+		if(!err) {
+			callback(row);
+		}
+		else {
+			callback(err);
+		}
+	});
+}
 
+//helper function to return data object of a single user's class preferences
+function getClassPreferences(db_id, callback){
+	//get types of class preferences from database
+	getClassTypes(function(exercise_types){
+		//get class preferences by user
+		var connection = mysql.createConnection({
+		host: config.db.host,
+		user: config.db.username,
+		password: config.db.password,
+		database: config.db.database
+		});
+		connection.connect();
+		var query = "SELECT * FROM user_class_preferences WHERE user_id=" + db_id;
+		connection.query(query, function(err, row, fields){
+			connection.end();
+			if(!err){
+				
+				//build data object from this
+				var class_preferences = {};
+
+				for(var i = 0; i < row.length; i++){
+					var entry = row[i];
+					var exercise_entry;
+					//loop through exercise_types and find matching id
+					for(var j = 0; j < exercise_types.length; j++){
+						if(entry['exercise_type_id'] == exercise_types[j]['id']){
+							exercise_entry = j;
+							break;
+						}
+					}
+					try{
+						//make a preference and add it to class_preferences data object
+						var one_preference = {
+							id: exercise_types[exercise_entry]['id'],
+							name: exercise_types[exercise_entry]['name'],
+							color: exercise_types[exercise_entry]['color'],
+							isActive: exercise_types[exercise_entry]['isActive'],
+						}
+						class_preferences[i] = one_preference;
+					} catch(err){
+						console.log(err);
+					}
+				}
+				callback(class_preferences);
+			}
+			else {
+				callback(err);
+			}
+		});
+	});
+}
 
 //account routes- make so only server can access
 //about, class_history, clases, feedback, friends_calendar, profile, trainer_list
@@ -442,6 +512,7 @@ app.get('/getprofile', ensureAuthenticated, function(req, res){
 	connection.connect();
 
 	var isRegistered = false;
+
 	connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
 		if(!err){
 			if(row.length <= 0){
@@ -450,32 +521,59 @@ app.get('/getprofile', ensureAuthenticated, function(req, res){
 				res.send("error user DNE");
 			}
 			else {
-				/*user_obj = row[0];
-				var reg_date = String(user_obj['reg_date']);
-				var d = new Date(Date.parse(reg_date));
-				
-				var monthNames = ["January", "February", "March", "April", "May", "June",
-					"July", "August", "September", "October", "November", "December"
-				];
-
-				var month = monthNames[d.getMonth()];
-				var day = d.getDay();
-				var year = d.getFullYear();
-
-				var new_reg_date = String(month) + " " + String(day) + ", " + String(year);
-			
-				user_obj['reg_date'] = new_reg_date;*/
-
-				//user exists. redirect them to main account page.
-				res.render("account/profile", {'app_version': pjson.version, 'user': row[0]});
+				//we've selected all the user info, now get their class preferences
+				getClassPreferences(req.user.db_id, function(class_preferences){
+					//user exists. redirect them to main account page.
+					//console.log(class_preferences);
+					res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
+				});
 			}
 		}
 		else {
 			console.log("Error querying database");
 		}
-
 		connection.end();
 	});
+});
+
+app.post('/saveprofile', ensureAuthenticated, function(req, res){
+	var profile_data = req.body;
+	var displayName,email,birthdate,isInstructor;
+	try{
+		//validate input, we don't want sql injections
+		displayName = req.body['displayName'];
+		email = req.body['email']; //gonna need to check email because email has an UNIQUE key
+		birthdate = req.body['birthdate'];
+		isInstructor = parseInt(req.body['isInstructor']);
+	} catch(err){
+		console.log(error);
+	}
+
+	//update user profile
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	var updateProfileQuery = `UPDATE users SET display_name='${displayName}', email='${email}', birthdate='${birthdate}', isInstructor='${isInstructor}' WHERE id='${req.user.db_id}'`;
+
+	connection.query(updateProfileQuery, function(err, row, fields){
+		connection.end();
+		if(!err){
+			//success
+			res.send('success');
+		}
+		else {
+			console.log(err);
+			res.send(err);
+		}
+	});
+});
+app.get('/saveprofilecomplete', ensureAuthenticated, function(req, res){
+
 });
 
 app.get('/getabout', ensureAuthenticated, function(req, res){
@@ -505,12 +603,6 @@ app.get('/getfeedback', ensureAuthenticated, function(req, res){
 app.get('/getinstructor', ensureAuthenticated, function(req, res){
 	res.render("account/instructor", {'app_version': pjson.version});
 });
-
-//on update profile
-app.post('/updateprofile', ensureAuthenticated, function(req, res){
-	res.send("update profile success");
-});
-
 
 
 //

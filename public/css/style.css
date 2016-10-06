@@ -237,8 +237,14 @@ h1 {
 .fitted_classpref_button-selected:hover {
 	color: #FFF;	
 }
-.fitted_classpref_button:hover {
-
+.fitted_classpref_button_profile {
+	border: 0px !important;
+	width: 180px !important;
+	color: #FFF !important;
+	margin-bottom: 5px;
+}
+.fitted_classpref_button_profile:hover {
+	cursor: default !important;
 }
 
 input:focus,

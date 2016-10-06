@@ -1,11 +1,12 @@
 <div align="left">
 	<%var json_data = JSON.parse(JSON.stringify(user))%>
+	<%var class_data = JSON.parse(JSON.stringify(class_preferences))%>
 	<div class="reg-inp-group-title" style="margin-bottom: 5px;">
 		Registered <span id="registered_date"></span>
 	</div>
-	<div class="reg-inp-group-title" style="margin-bottom: 5px;">
+	<!--<div class="reg-inp-group-title" style="margin-bottom: 5px;">
 		Last logged in <span id="registered_date"></span>
-	</div>
+	</div>-->
 
 	<div class="reg-inp-group">
 			<div class="reg-inp-group-title">
@@ -18,7 +19,7 @@
 			<div class="reg-inp-group-title">
 				Email
 			</div>
-		<input type="text" class="regInp" value="<%=user['email']%>" id="reg_displayName">
+		<input type="text" class="regInp" value="<%=user['email']%>" id="reg_email">
 	</div>
 
 	<div class="reg-inp-group">
@@ -41,7 +42,6 @@
 				</select>
 
 				<input type="text" class="regInp regInp-DD" placeholder="DD" id="reg_bday_dd" onkeypress="return isNumberKey(event)" maxlength="2">
-				<!--<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">-->
 
 				<select class="selectMM" id="reg_bday_yyyy">
 					<% var start_year = 2017-100; var len = 100; %>
@@ -56,8 +56,13 @@
 				Account Type
 			</div>
 			<span>
-				<button class="btn fitted_button fitted_button-selected" id="student_btn">I'm a student</button>
-				<button class="btn fitted_button" id="instructor_btn">I'm an instructor</button>
+				<% if (json_data["isInstructor"] <= 0){ %>
+				<button class="btn fitted_button fitted_button-selected" id="student_btn">Student</button>
+				<button class="btn fitted_button" id="instructor_btn">Instructor</button>
+				<% } else { %>
+					<button class="btn fitted_button" id="student_btn">Student</button>
+					<button class="btn fitted_button fitted_button-selected" id="instructor_btn">Instructor</button>
+				<% } %>
 			</span>
 	</div><br>
 
@@ -65,6 +70,16 @@
 			<div class="reg-inp-group-title">
 				Class Type Preferences
 			</div>
+			<%for(var prop in class_data) { %>
+				<%if(class_data[prop]['isActive'] >= 1) { %>
+				<button 
+					class="btn fitted_classpref_button fitted_classpref_button_profile" 
+					class_id='<%=class_data[prop][`id`]%>' 
+					style="background-color:#<%=class_data[prop]['color']%>;">
+					<%=class_data[prop]['name']%>
+				</button>
+				<%}%>
+			<%}%>
 	</div><br>
 
 	<div class="reg-inp-group">
@@ -73,7 +88,7 @@
 			</div>
 	</div>
 </div>
-<div class="reg-confirm" id="reg_completed" style="left:0;">
+<div class="reg-confirm" id="reg_save" style="left:0;">
 	Save Changes
 </div>
 
@@ -85,7 +100,6 @@ var birthdate = moment('<%= json_data["birthdate"] %>');
 $(document).ready(function(){
 	//set registered date
 	$("#registered_date").html(reg_date.format("dddd MMMM Do, YYYY"));
-
 	//set last log in date
 
 	//set birthdate stuff
@@ -99,6 +113,45 @@ $(document).ready(function(){
 	//year
 	var year = birthdate.format("YYYY");
 	$("#reg_bday_yyyy option[value=" + year + "]").attr('selected', 'selected');
+
+	//instructor button behavior
+	$('.fitted_button').mouseup(function(){
+			if($(this).attr('id') == 'instructor_btn'){
+				$('#student_btn').removeClass('fitted_button-selected');
+			}
+			else {
+				$('#instructor_btn').removeClass('fitted_button-selected');
+			}
+			$(this).addClass('fitted_button-selected');
+	});
+
+	$("#reg_save").mouseup(function(){
+		//get all info
+		//make date
+		var birthdate = String($("#reg_bday_yyyy").val()) + "-" + String($("#reg_bday_mm").val()) + "-" + String($("#reg_bday_dd").val());
+		var isInstructor = 0;
+		if($("#instructor_btn").hasClass("fitted_button-selected")){
+			isInstructor = 1;
+		}
+
+		var save_data = { 
+			"displayName": $('#reg_displayName').val(),
+			"email": $('#reg_email').val(),
+			"birthdate": birthdate,
+			"isInstructor": isInstructor,
+		};
+
+		//POST it
+		$.ajax({
+			type: "POST",
+			url: "/saveprofile",
+			data: JSON.stringify(save_data),
+			contentType: "application/json",
+			complete: function(data){
+				window.location.replace('/auth/facebook');
+			}
+		});
+	});
 });
 
 </script>

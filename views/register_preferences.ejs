@@ -6,7 +6,6 @@
    	<meta name="viewport" content="width=device-width; initial-scale = 1.0; maximum-scale=1.0; user-scalable=no" />
 	<script src="static/js/jquery-1.12.4.min.js"></script>
 	<script src="static/js/bootstrap.min.js"></script>
-	<script src=""></script>
 	<link rel="stylesheet" type="text/css" href="static/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" type="text/css" href="static/css/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="static/css/font-awesome.min.css">
@@ -149,16 +148,6 @@ window.fbAsyncInit = function() {
 	$(document).ready(function(){
 
 		$("#reg_completed").mouseup(function(){
-			/*var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
-			var reg_data = {
-				"data": {
-					"display_name": $('#reg_displayName').val(),
-					"email": $("#reg_email").val(),
-					"birthday": bday_str,
-					"location": $('#reg_location').val(),
-					"isInstructor": false
-				},
-			}*/
 			var selected = [];
 			$(".fitted_classpref_button-selected").each(function(i, obj){
 				selected.push($(obj).attr('class_id'));

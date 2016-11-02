@@ -40,8 +40,8 @@ body {
 	font-style: normal;
 }
 
-a { color: inherit;}
-a:hover { color: inherit; }
+a:hover, a:hover, a, a:visited { color: inherit; }
+a, a:hover { text-decoration: none; }
 
 h1 {
     font-family: 'Assistant', sans-serif;
@@ -254,7 +254,7 @@ button:focus {
     outline: none;
 }
 a, * {
-   outline: 0;
+   outline: 0 !important;
 }
 
 .slick-next:hover, .slick-prev:hover { cursor: pointer; }
@@ -320,7 +320,7 @@ select {
 	font-size: 24px;
 	border: 0;
 	border-bottom: 1px solid rgba(151,151,151,.5);
-	color: #001B38
+	color: #001B38;
 }
 .regInp-DD {
 	width: 30px !important;
@@ -447,18 +447,9 @@ select {
 
 .app_body {
 	padding: 20px;
-	/*top: -20px;*/
-	top: 40px;
-	position: relative;
+	padding-top: 0px;
 	z-index: 1;
 	font-size: 16px;
-}
-.app_body_top {
-	-webkit-transition: all ease-in-out .2s;
-    -moz-transition: all ease-in-out .2s;
-    -o-transition: all ease-in-out .2s;
-    transition: all ease-in-out .2s;
-	top: 40px !important;
 }
 .app_body section {
 	margin-bottom: 30px;
@@ -555,4 +546,114 @@ select {
 
 .app_menu_link:hover, #menu_about:hover { 
 	cursor:pointer;
+}
+
+/*
+*	shubh's redesign
+*/
+
+.dashboard-footer {
+	position: fixed;
+	bottom: 0;
+	height: 60px;
+	line-height: 60px;
+	width: 100%;
+	background-color: #FFF;
+	color: #0AD981;
+	-webkit-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.15);
+	-moz-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.15);
+	box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.15);
+	overflow: hidden;
+}
+.dashboard-footer-cell {
+	width: 50%;
+	display: inline-block;
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+	font-family: 'Assistant';
+	text-transform: uppercase;
+	position: relative;
+}
+.dashboard-footer-cell-selected {
+	width: 40px;
+	height: 40px;
+	background-color: #333;
+	position: absolute;
+	bottom: -25px;
+	border-radius: 30px;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.dashboard-panel {
+	background-color: #FFF;
+	-webkit-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.15);
+	-moz-box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.15);
+	box-shadow: 0px 0px 4px 2px rgba(0,0,0,0.15);
+	border-radius: 5px;
+	display: table;
+	height: 150px;
+	width: 100%;
+	margin-top: 20px;
+}
+.dashboard-panel-inner {
+	display: table-cell;
+	vertical-align: middle;
+	height: 100%;
+	text-align: center;
+	width: 100%;
+}
+.dashboard-panel-inner b {
+	color: #0AD981;
+	text-transform: uppercase;
+}
+.dashboard-panel-inner p {
+	margin-bottom: 10px;
+}
+.dashboard-panel-inner-button {
+	width: 130px;
+	font-weight: bold;
+	text-transform: uppercase;
+	border-radius: 5px;
+	border: 1px solid #0AD981;
+}
+.dashboard-panel-inner-button:hover, .dashboard-footer-cell:hover { cursor: pointer; }
+
+.schedule-header { 
+	margin-top: 10px; 
+	font-size: 20px;
+	color: #0AD981;
+}
+.schedule-panel {
+	border: 1px solid #0AD981; 
+	margin-right: 30px; 
+	margin-left: 30px;
+	margin-bottom: 20px;
+}
+.schedule-panel-header {
+	background-color: #0AD981;
+	width: 100%;
+	display: table;
+	padding: 10px;
+	color: #FFF;
+	font-weight: bold;
+	text-transform: uppercase;
+	margin-bottom: 10px;
+}
+
+.addclass-panel {
+	background-color: #FFF; 
+	color: #333; 
+	padding: 20px; 
+	margin-bottom: 20px;
+	-webkit-box-shadow: 0px 4px 4px 2px rgba(0,0,0,0.07);
+	-moz-box-shadow: 0px 4px 4px 2px rgba(0,0,0,0.07);
+	box-shadow: 0px 4px 4px 2px rgba(0,0,0,0.07);
+}
+.addclass-panel b {
+	text-transform: uppercase;
+	color: #777 !important;
 }

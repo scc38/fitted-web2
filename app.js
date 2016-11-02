@@ -11,24 +11,6 @@ var bodyParser = require('body-parser');
 
 var pjson = require('./package.json'); //for version number
 
-//sequelize connection
-/*var Sequelize = require('sequelize')
-  , sequelize = new Sequelize(config.db.database, config.db.username, config.db.password, {
-      dialect: "mysql",
-      port:    3306,
-    });
-
-sequelize
-  .authenticate()
-  .then(function(err) {
-    console.log('Connection has been established successfully.');
-  }, function (err) { 
-    console.log('Unable to connect to the database:', err);
-  });
-*/
-
-//
-
 var app = express();
 
 app.set('views', path.join(__dirname, 'views'));
@@ -207,16 +189,19 @@ app.get('/auth/facebook',
 
 app.get('/logout', function(req, res){
 	req.logout();
-	res.redirect('/')
+	res.redirect('/');
 });
 
 app.get('/login', function(req, res){
 	res.redirect('/');
 });
 
-app.get('/account*', ensureAuthenticated, function(req, res){
-	//console.log("account");
-	//console.log(req.user);
+/*
+* Main app
+*/
+
+app.get('/dashboard*', ensureAuthenticated, function(req, res){
+
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
@@ -227,7 +212,103 @@ app.get('/account*', ensureAuthenticated, function(req, res){
 			res.redirect('/register');
 		}
 	});
+
 });
+
+
+/*
+*	user schedule
+*/
+app.get('/schedule*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			res.render("schedule", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
+
+/*
+*	payment- implement BrainTree
+*	https://developers.braintreepayments.com/start/hello-client/javascript/v3
+*/
+app.get('/payment*', ensureAuthenticated, function(req, res){
+	res.render('payment', {'app_version': pjson.version});
+});
+
+
+/*
+*	user profile
+*	TO DO: id param in url shows profile of that user
+*/
+app.get('/profile*', ensureAuthenticated, function(req, res){
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	var isRegistered = false;
+
+	connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
+		if(!err){
+			if(row.length <= 0){
+				//user does not yet exist, allow them to register
+				//so no redirect
+				res.send("error user DNE");
+			}
+			else {
+				//we've selected all the user info, now get their class preferences
+				getClassPreferences(req.user.db_id, function(class_preferences){
+					//user exists. redirect them to main account page.
+					//console.log(class_preferences);
+					res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
+				});
+			}
+		}
+		else {
+			console.log("Error querying database");
+		}
+		connection.end();
+	});
+});
+
+
+/*
+* Instructor only
+*/
+
+/*
+*	Create class
+*/
+app.get('/createclass*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed, check if is instructor
+			if(req.user.isInstructor >= 1){
+				res.render("create_class", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
+			}
+			else {
+				res.redirect('/dashboard');
+			}
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
+
+
 
 app.get('/register', ensureAuthenticated, function(req, res){
 	/*	The user is already authenticated. Now we check to see if their facebook_id already
@@ -235,13 +316,10 @@ app.get('/register', ensureAuthenticated, function(req, res){
 		If it does, then redirect to account page.
 	*/
 
-	//console.log("register");
-	//console.log(req.user);
-
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.redirect('/account');
+			res.redirect('/dashboard');
 		}
 		else {
 			//user is not confirmed, update user and confirm them
@@ -346,16 +424,6 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){
 		if(!err){
-			//console.log("query successful");
-			/*req.user.db_id = "test";
-			req.login(req.user, function(error) {
-            	if (!error) {
-                // successfully serialized user to session
-                console.log('serialize sucess');
-	            }
-	        });	
-	        res.send('user update success');
-	        res.end();*/
 	        res.send('user update success');
 		}
 		else {
@@ -386,7 +454,7 @@ app.get('/regclassprefs', ensureAuthenticated, function(req, res){
 			}
 			else {
 				//got class types
-				res.render("register_preferences", {'app_version': pjson.version, 'class_types': row});
+				res.render("register_prefs_user", {'app_version': pjson.version, 'class_types': row});
 			}
 		}
 		else {
@@ -498,43 +566,6 @@ function getClassPreferences(db_id, callback){
 		});
 	});
 }
-
-//account routes- make so only server can access
-//about, class_history, clases, feedback, friends_calendar, profile, trainer_list
-//GETS
-app.get('/getprofile', ensureAuthenticated, function(req, res){
-	var connection = mysql.createConnection({
-	host: config.db.host,
-	user: config.db.username,
-	password: config.db.password,
-	database: config.db.database
-	});
-	connection.connect();
-
-	var isRegistered = false;
-
-	connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
-		if(!err){
-			if(row.length <= 0){
-				//user does not yet exist, allow them to register
-				//so no redirect
-				res.send("error user DNE");
-			}
-			else {
-				//we've selected all the user info, now get their class preferences
-				getClassPreferences(req.user.db_id, function(class_preferences){
-					//user exists. redirect them to main account page.
-					//console.log(class_preferences);
-					res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
-				});
-			}
-		}
-		else {
-			console.log("Error querying database");
-		}
-		connection.end();
-	});
-});
 
 app.post('/saveprofile', ensureAuthenticated, function(req, res){
 	var profile_data = req.body;
@@ -699,6 +730,7 @@ app.get('/', function(req,res){
 });
 
 function ensureAuthenticated(req,res,next){
+	//console.log(req.user);
 	if(req.isAuthenticated()) {return next();}
 	res.redirect('/login');
 }

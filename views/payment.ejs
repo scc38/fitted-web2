@@ -13,6 +13,7 @@
 	<!--google fonts-->
 	<link href="https://fonts.googleapis.com/css?family=Quattrocento+Sans" rel="stylesheet">
 
+
 	<link rel="stylesheet" type="text/css" href="../static/css/style.css">
 
 	<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -90,28 +91,25 @@ $(document).ready(function(){
  fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
+
 </script>
 
 <div align="center">
 	<span class="app_title" style="margin-top: 10px; display: inline-block">Fitted</span>
 	<div class="app_body">
-		<%if (isInstructor >= 1) { %>
-			<% include account/dashboard-instructor %> 
-		<% } else { %>
-			<% include account/dashboard-user %> 
-		<% } %>
+		Payment
 	</div>
 </div>
 <div class="dashboard-footer">
-	<div class="dashboard-footer-cell">
+	<a href="/dashboard"><div class="dashboard-footer-cell">
 		Dashboard
+	</div></a><!--
+	--><div class="dashboard-footer-cell">
+		Schedule
 		<div class="dashboard-footer-cell-selected">
 		</div>
-	</div><!--
-	--><a href="/schedule"><div class="dashboard-footer-cell">
-		Schedule
-	</div></a>
-</div>
+	</div></div>
 </body>
+
 
 </html>

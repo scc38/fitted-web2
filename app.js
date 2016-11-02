@@ -219,7 +219,7 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 /*
 *	user schedule
 */
-app.get('/schedule*', ensureAuthenticated, function(req, res){
+app.get('/schedule', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -294,7 +294,33 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 		if(returnVal >= 1){
 			//user is confirmed, check if is instructor
 			if(req.user.isInstructor >= 1){
-				res.render("create_class", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
+				getClassPreferences(req.user.db_id, function(class_preferences){
+					console.log(class_preferences);
+					res.render("create_class", {'app_version': pjson.version,'class_preferences': class_preferences});
+				});
+			}
+			else {
+				res.redirect('/dashboard');
+			}
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
+
+/*
+*	schedule class
+*/
+app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed, check if is instructor
+			if(req.user.isInstructor >= 1){
+				res.render("schedule_class", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
 			}
 			else {
 				res.redirect('/dashboard');
@@ -603,6 +629,18 @@ app.post('/saveprofile', ensureAuthenticated, function(req, res){
 		}
 	});
 });
+
+
+/*
+* create a class
+*/
+app.post('/post/createclass', ensureAuthenticated, function(req, res){
+	var class_data = req.body;
+	console.log(class_data);
+	res.send('success');
+});
+
+
 app.get('/saveprofilecomplete', ensureAuthenticated, function(req, res){
 
 });

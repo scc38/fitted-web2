@@ -27,6 +27,7 @@
 
  	<title>FITTED web <%= app_version %></title>
 </head>
+<%var class_data = JSON.parse(JSON.stringify(class_preferences))%>
 <body style='background-color: #0AD981; color: #FFF;'>
 <!--facebook code-->
 <script>
@@ -93,40 +94,67 @@ $(document).ready(function(){
 
 
 </script>
-<div class="addclass-preview hide">
-	<div class="viewclass_header" align="center">
-		<div>class category</div>
-		<div>class title</div>
-	</div>
 
-	<div class="viewclass_header2" align="center">
-		<div style="display: inline-block;">
-			when
+<div class="addclass-preview addclass-preview-hide">
+	<div class="viewclass_header" align="center">
+		<div class="viewclass_header-inner">
+			<div class="viewclass_class-category" style="text-transform: uppercase;">Yoga</div>
+			<div class="viewclass_class-title">Yoga Sculpting in the Park</div>
+		</div>
+	</div><!--
+
+	--><div class="viewclass_header2" align="center" style="background-color: red;">
+		<div class="viewclass_header2-cell" style="background-color: #555;">
+			<div style="margin-bottom: 10px;"><b>When</b></div>
+			<p>
+			Sunday<br>
+			November 31,<br>
+			12.30 pm - 1.30 pm
+			</p>
 		</div><!--
-		--><div style="display: inline-block;">
-			where
+		--><div class="viewclass_header2-cell" style="background-color: #333;">
+			<div style="margin-bottom: 10px;"><b>Where</b></div>
+			<p>
+			Piedmont Park<br>
+			10th and Piedmont st.<br>
+			Durham, NC 30097
+			</p>
 		</div>
 	</div>
 
 	<div class="viewclass_instructor">
-		instructor info
-	</div>
-
-	<div class="viewclass_description">
-		class description
-	</div>
-
-	<div class="viewclass_meet">
-		where to meet
-	</div>
-
-	<div class="dashboard-footer">
-		<div class="dashboard-footer-cell">
-			Save & Schedule
-		</div><!--
-		--><div class="dashboard-footer-cell">
-			Edit
+		<div class="viewclass_instructor-cell">
+		<b>Your Instructor</b><br>
+		Name<br>
+		<i>Learn More</i>
 		</div>
+	</div>
+	<br>
+	<div style="padding: 20px;">
+		<div class="viewclass_white">
+			<b>Class Description</b>
+			<p id="viewclass_description">
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			</p>
+		</div>
+		<br>
+		<div class="viewclass_white">
+			<b>Where to Meet</b>
+			<p id="viewclass_meet">
+				Meet outside the black bench next to the cobblestone arch.
+			</p>
+		</div>
+	</div>
+
+	<div class="dashboard-footer" style="position: absolute !important;">
+		<div class="dashboard-footer-cell" id="edit">
+			Edit
+		</div><!--
+		--><div class="dashboard-footer-cell save">
+			Save & Schedule
+		</div>
+	</div>
+	<div style="height: 60px;">
 	</div>
 </div>
 
@@ -142,8 +170,19 @@ $(document).ready(function(){
 		</span>
 		<div class="app_body" style="padding: 0;">
 			<div class="addclass-panel">
-				<b>Select Class Category</b>
-				<p>content</p>
+				<div style="margin-bottom: 10px;"><b>Select Class Category</b></div>
+				<p>
+				<%for(var prop in class_data) { %>
+					<%if(class_data[prop]['isActive'] >= 1) { %>
+					<button 
+						class="btn fitted_classpref_button fitted_classpref_button_profile classpref-deselected" 
+						class_id='<%=class_data[prop][`id`]%>' 
+						style="background-color:#<%=class_data[prop]['color']%>; margin: 10px;">
+						<%=class_data[prop]['name']%>
+					</button><br>
+					<%}%>
+				<%}%>
+				</p>
 			</div>
 
 			<div class="addclass-panel">
@@ -154,6 +193,9 @@ $(document).ready(function(){
 					<button class="addclass_bubble-btn">60</button><br>
 					<button class="addclass_bubble-btn">75</button>
 					<button class="addclass_bubble-btn">90</button>
+				</p><br>
+				<div style="margin-bottom: 10px;"><b>isRepeating</b></div>
+				<p>yes/no
 				</p>
 			</div>
 
@@ -161,13 +203,13 @@ $(document).ready(function(){
 				<b>Student Payment</b>
 				<p>
 					<span style="position: relative; left: 3px; bottom: 5px;">$</span><!--
-					--><input type="text" class="addclass_inp-underline" value="15.00" maxlength="5"><br>
+					--><input type="text" class="addclass_inp-underline" value="15.00" maxlength="5" id="class_price"><br>
 					<span class="addclass_subtitle">Per Student</span>
 				</p><br>
 
 				<b>Number of Students Per Session</b>
 				<p>
-					<input type="text" class="addclass_inp-underline" value="12" onkeypress="return isNumberKey(event)" maxlength="3"><br>
+					<input type="text" class="addclass_inp-underline" value="12" onkeypress="return isNumberKey(event)" maxlength="3" id="numStudents"><br>
 					<span class="addclass_subtitle">Maximum Amount</span>
 				</p>
 			</div>
@@ -205,10 +247,10 @@ $(document).ready(function(){
 		</div>
 	</div>
 	<div class="dashboard-footer">
-		<div class="dashboard-footer-cell">
+		<div class="dashboard-footer-cell" id="preview">
 			Preview
 		</div><!--
-		--><div class="dashboard-footer-cell">
+		--><div class="dashboard-footer-cell save">
 			Save
 		</div>
 	</div>
@@ -219,17 +261,126 @@ $(document).ready(function(){
 </div>
 
 <script>
-      function initMap() {
-        var piedmont = {lat: 36.1259707, lng: -80.230882};
-        var map = new google.maps.Map(document.getElementById('map'), {
-          zoom: 14,
-          center: piedmont
-        });
-        var marker = new google.maps.Marker({
-          position: piedmont,
-          map: map
-        });
-      }
+	//google maps code
+	function initMap() {
+		var piedmont = {lat: 36.1259707, lng: -80.230882};
+		var map = new google.maps.Map(document.getElementById('map'), {
+		  zoom: 14,
+		  center: piedmont,
+		  zoomControl: false,
+		  scaleControl: false,
+		  scrollwheel: false,
+		  disableDoubleClickZoom: true,
+		});
+		var marker = new google.maps.Marker({
+		  position: piedmont,
+		  map: map
+		});
+	}
+
+	$(document).ready(function(){
+		var class_types = JSON.parse('<%-JSON.stringify(class_preferences)%>');
+
+		//func for getting class data
+		function getClassData(){
+		var class_category, class_length, address;
+
+		$('.fitted_classpref_button[class_id]').each(function(index, item){
+			if($(this).hasClass('classpref-deselected')){
+				class_category = null;
+			}
+			else {
+				console.log($(this).attr('class_id'))
+				class_category = $(this).attr('class_id');
+				return false;
+			}
+		});
+
+		$('.addclass_bubble-btn').each(function(index, item){
+			if($(item).hasClass('addclass_bubble-btn_selected')){
+				class_length = parseInt($(this).html());
+			}
+		});
+
+		address = $('#address_line1') + '&' + $('#address_line2') + '&' + $('#address_line3');
+
+		var class_data = { 
+			"category": class_category,
+			"length": class_length,
+			"price": parseFloat($('#class_price').val()),
+			"numStudents": parseInt($('#numStudents').val()),
+			"title": $('#class_title').val(),
+			"description": $('#class_description').val(),
+			"address": address,
+			"direction": $('#direction_notes').val(),
+		};
+		
+		return class_data;
+
+		//redirect to /scheduleclass upon success
+		}
+
+
+		//class category behavior
+		$('.fitted_classpref_button').mouseup(function(){
+			if($(this).hasClass('classpref-deselected')){
+				$('.fitted_classpref_button').addClass('classpref-deselected');
+				$(this).removeClass('classpref-deselected');
+			}
+		});
+
+		//class length behavior
+		$(".addclass_bubble-btn").mouseup(function(){
+			if(!$(this).hasClass('addclass_bubble-btn_selected')){
+				//if button isn't already selected, do stuff
+				$(".addclass_bubble-btn").removeClass('addclass_bubble-btn_selected');
+				$(this).addClass('addclass_bubble-btn_selected');
+			}
+		});
+
+		//on preview click
+		$('#preview').mouseup(function(){
+			//update preview
+			var preview_data = getClassData();
+
+			$.each(class_types, function(i, val){
+				if(val['id'] == preview_data.category){
+					$('.viewclass_class-category').html(val['name']);
+					$('.viewclass_header').css('background-color', "#" + val['color']);
+					return false;
+				}
+			});
+
+			//update title
+			$('.viewclass_class-title').html(preview_data.title);
+
+			//update location
+
+			//update description
+			$('#viewclass_description').html(preview_data.description);
+
+			//update where to meet
+			$('#viewclass_meet').html(preview_data.direction);
+
+			window.scrollTo(0,0);
+			$('.addclass-preview').removeClass('addclass-preview-hide');
+			$('.addclass-edit').addClass('hide');
+		});
+
+		$('#edit').mouseup(function(){
+			window.scrollTo(0,0);
+			$('.addclass-preview').addClass('addclass-preview-hide');
+			$('.addclass-edit').removeClass('hide');
+		});
+
+		var data;
+
+		$('.save').mouseup(function(){
+			//saveClass();
+			window.location.replace('/scheduleclass');
+		});
+
+	});
 </script>
 
 <script async defer src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7Rdu67ww1V8YOxrLlQkgs_zyr99wXZSs&callback=initMap">

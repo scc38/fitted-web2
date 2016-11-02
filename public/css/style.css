@@ -41,7 +41,7 @@ body {
 }
 
 a:hover, a:hover, a, a:visited { color: inherit; }
-a, a:hover { text-decoration: none; }
+a, a:hover, a:visited, a:active { text-decoration: none !important; }
 
 h1 {
     font-family: 'Assistant', sans-serif;
@@ -705,13 +705,94 @@ select {
 	color: #FFF;
 }
 
-.addclass-preview {
+.addclass-preview, .addclass-schedule {
 	background-color: #FFF;
-	height: 100%;
+	min-height: 100%;
 	position: absolute;
 	top: 0px;
-	z-index: 999;
 	width: 100%;
 	color: #333;
-	bottom: 0px;
+	left: 0;
+	overflow-y: auto;
+	font-size: 16px;
+	-webkit-transition: all ease-in-out .2s;
+    -moz-transition: all ease-in-out .2s;
+    -o-transition: all ease-in-out .2s;
+    transition: all ease-in-out .2s;
+}
+.addclass-preview-hide { top: -999%; }
+.addclass-preview { z-index: 998 }
+.addclass-schedule { z-index: 999 }
+
+.viewclass_header {
+	background-color: #9013fe;
+	color: #FFF;
+	height: 100px;
+	display: table;
+	width: 100%;
+	padding: 40px;
+}
+.viewclass_header-inner { 
+	display: table-cell; 
+	text-align: center; 
+	vertical-align: middle;
+}
+.viewclass_class-category {
+	font-weight: bold;
+	font-size: 18px;
+}
+.viewclass_class-title {
+	font-size: 24px;
+}
+.viewclass_header2 {
+	display: table;
+	width: 100%;
+}
+.viewclass_header2-cell {
+	display: table-cell; 
+	width: 50%;
+	color: #fff;
+	background-color: #222; 
+	font-size: 18px;
+	padding: 20px;
+	vertical-align: middle;
+	text-align: center;
+}
+.viewclass_header2-cell b, .viewclass_instructor-cell b{ text-transform: uppercase; font-size: 14px; }
+.viewclass_instructor { 
+	display: table; 
+	width: 100%; 
+	background-color: #222;
+	color: #fff;
+	font-size: 18px;
+	padding: 20px;
+}
+.viewclass_instructor-cell {
+	display: table-cell;
+}
+.viewclass_white {
+	font-size: 18px;
+}
+.viewclass_white b {
+	text-transform: uppercase;
+	color: #001B38;
+	font-size: 14px;
+}
+
+.transparent-panel {
+	-webkit-box-shadow: inset 0px 0px 8px 0px rgba(255,255,255,.5);
+	-moz-box-shadow: inset 0px 0px 8px 0px rgba(255,255,255,.5);
+	box-shadow: inset 0px 0px 8px 0px rgba(255,255,255,.5);
+	background-color: rgba(255,255,255,.2);
+	-webkit-transition: all ease-in-out .2s;
+    -moz-transition: all ease-in-out .2s;
+    -o-transition: all ease-in-out .2s;
+    transition: all ease-in-out .2s;
+    opacity: 1;
+}
+
+.classpref-deselected {
+	border: 1px solid #0AD981 !important;
+	background-color: #FFF !important;
+	color: #333 !important;
 }

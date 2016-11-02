@@ -27,7 +27,15 @@
 
  	<title>FITTED web <%= app_version %></title>
 </head>
-<body>
+<body style="padding: 15px;">
+<a href="/dashboard">
+	<div style="position: absolute; top: 10px; left: 15px; color: #ccc; font-weight: bold; font-size: 14px;">
+		back
+	</div>
+</a>
+<div align="center">
+	<span class="app_title" style="margin-top: 10px; display: inline-block">Fitted</span>
+</div>
 <div align="left">
 	<%var json_data = JSON.parse(JSON.stringify(user))%>
 	<%var class_data = JSON.parse(JSON.stringify(class_preferences))%>

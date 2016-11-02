@@ -657,3 +657,61 @@ select {
 	text-transform: uppercase;
 	color: #777 !important;
 }
+.addclass_inp {
+	font-family: 'Assistant' !important;
+	border: none;
+	color: #001B38;
+	font-size: 22px;
+	width: 100%;
+	text-align: center;
+}
+.addclass_inp-underline {
+	font-family: 'Assistant' !important;
+	border: none;
+	border-bottom: 1px solid #0AD981;
+	color: #001B38;
+	font-size: 28px;
+	max-width: 70px;
+	text-align: center;
+}
+.addclass_textarea {
+	text-align: center;
+	font-family: 'Assistant' !important;
+	border: none;
+	color: #001B38;
+	font-size: 22px;
+	width: 100%;
+	padding-left: 20px;
+	padding-right: 20px;
+	height: auto;
+}
+.addclass_subtitle {
+	color: #777;
+	font-size: 16px;
+}
+.addclass_bubble-btn {
+	border: 1px solid #0AD981;
+	background-color: #FFF;
+	border-radius: 23px;
+	padding: 8px;
+	padding-right: 15px;
+	padding-left: 15px;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 10px;
+}
+.addclass_bubble-btn_selected {
+	background-color: #0AD981 !important;
+	color: #FFF;
+}
+
+.addclass-preview {
+	background-color: #FFF;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	z-index: 999;
+	width: 100%;
+	color: #333;
+	bottom: 0px;
+}

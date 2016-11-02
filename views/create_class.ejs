@@ -93,64 +93,147 @@ $(document).ready(function(){
 
 
 </script>
-<a href="/dashboard">
-	<div style="position: absolute; top: 10px; left: 15px; color: #FFF; font-weight: bold; font-size: 14px;">
-		back
+<div class="addclass-preview hide">
+	<div class="viewclass_header" align="center">
+		<div>class category</div>
+		<div>class title</div>
 	</div>
-</a>
-<div align="center">
-	<span class="app_title" style="margin-top: 10px; display: inline-block; padding-top: 20px; padding-bottom: 20px;">
-		ADD CLASS
-	</span>
-	<div class="app_body" style="padding: 0;">
-		<div class="addclass-panel">
-			<b>Select Class Category</b>
-			<p>content</p>
+
+	<div class="viewclass_header2" align="center">
+		<div style="display: inline-block;">
+			when
+		</div><!--
+		--><div style="display: inline-block;">
+			where
 		</div>
+	</div>
 
-		<div class="addclass-panel">
-			<b>Class Length in Minutes</b>
-			<p>content</p>
-		</div>
+	<div class="viewclass_instructor">
+		instructor info
+	</div>
 
-		<div class="addclass-panel">
-			<b>Student Payment</b>
-			<p>content</p><br>
+	<div class="viewclass_description">
+		class description
+	</div>
 
-			<b>Number of Students Per Session</b>
-			<p>content</p>
-		</div>
+	<div class="viewclass_meet">
+		where to meet
+	</div>
 
-		<div class="addclass-panel">
-			<b>Class Title</b>
-			<p>content</p><br>
-
-			<b>Class Description</b>
-			<p>content</p>
-		</div>
-
-		<div class="addclass-panel">
-			<b>Location</b>
-			<p>content</p><br>
-
-			<b>Address</b>
-			<p>address</p><br>
-
-			<b>Direction Notes</b>
-			<p>Meet outside at...</p>
+	<div class="dashboard-footer">
+		<div class="dashboard-footer-cell">
+			Save & Schedule
+		</div><!--
+		--><div class="dashboard-footer-cell">
+			Edit
 		</div>
 	</div>
 </div>
-<div class="dashboard-footer">
-	<div class="dashboard-footer-cell">
-		Preview
-	</div><!--
-	--><div class="dashboard-footer-cell">
-		Save
-	</div></div>
+
+<div class="addclass-edit">
+	<a href="/dashboard">
+		<div style="position: absolute; top: 10px; left: 15px; color: #FFF; font-weight: bold; font-size: 14px;">
+			back
+		</div>
+	</a>
+	<div align="center">
+		<span class="app_title" style="margin-top: 10px; display: inline-block; padding-top: 20px; padding-bottom: 20px;">
+			ADD CLASS
+		</span>
+		<div class="app_body" style="padding: 0;">
+			<div class="addclass-panel">
+				<b>Select Class Category</b>
+				<p>content</p>
+			</div>
+
+			<div class="addclass-panel">
+				<div style="margin-bottom: 10px;"><b>Class Length in Minutes</b></div>
+				<p>
+					<button class="addclass_bubble-btn addclass_bubble-btn_selected">30</button>
+					<button class="addclass_bubble-btn">45</button>
+					<button class="addclass_bubble-btn">60</button><br>
+					<button class="addclass_bubble-btn">75</button>
+					<button class="addclass_bubble-btn">90</button>
+				</p>
+			</div>
+
+			<div class="addclass-panel">
+				<b>Student Payment</b>
+				<p>
+					<span style="position: relative; left: 3px; bottom: 5px;">$</span><!--
+					--><input type="text" class="addclass_inp-underline" value="15.00" maxlength="5"><br>
+					<span class="addclass_subtitle">Per Student</span>
+				</p><br>
+
+				<b>Number of Students Per Session</b>
+				<p>
+					<input type="text" class="addclass_inp-underline" value="12" onkeypress="return isNumberKey(event)" maxlength="3"><br>
+					<span class="addclass_subtitle">Maximum Amount</span>
+				</p>
+			</div>
+
+			<div class="addclass-panel">
+				<b>Class Title</b>
+				<p>
+					<input type="text" class="addclass_inp" value="Yoga Sculpting in the Park" id="class_title">
+				</p><br>
+
+				<b>Class Description</b>
+				<p>
+					<textarea class="addclass_textarea" id="class_description" style="font-size: 18px !important; text-align: left !important;" rows=5>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+					</textarea>
+				</p>
+			</div>
+
+			<div class="addclass-panel" style="padding-left: 0; padding-right: 0;">
+				<div style="margin-bottom: 10px;"><b>Location</b></div>
+				<div id="map" style="height: 250px; width: 100%;">
+				</div><br>
+
+				<b>Address</b>
+				<p>
+					<input type="text" class="addclass_inp" value="Piedmont Park" id="address_line1"><br>
+					<input type="text" class="addclass_inp" value="10th and Piedmont st." id="address_line2"><br>
+					<input type="text" class="addclass_inp" value="Durham, NC. 30097" id="address_line3">
+				</p><br>
+
+				<b>Direction Notes</b>
+				<p>
+					<textarea class="addclass_textarea" id="direction_notes">Meet outside the black bench next to the cobblestone arch.</textarea>
+				</p>
+			</div>
+		</div>
+	</div>
+	<div class="dashboard-footer">
+		<div class="dashboard-footer-cell">
+			Preview
+		</div><!--
+		--><div class="dashboard-footer-cell">
+			Save
+		</div>
+	</div>
+</div>
 </body>
 
 <div style="height: 60px;">
 </div>
+
+<script>
+      function initMap() {
+        var piedmont = {lat: 36.1259707, lng: -80.230882};
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 14,
+          center: piedmont
+        });
+        var marker = new google.maps.Marker({
+          position: piedmont,
+          map: map
+        });
+      }
+</script>
+
+<script async defer src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7Rdu67ww1V8YOxrLlQkgs_zyr99wXZSs&callback=initMap">
+</script>
+
 
 </html>

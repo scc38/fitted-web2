@@ -295,7 +295,6 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 			//user is confirmed, check if is instructor
 			if(req.user.isInstructor >= 1){
 				getClassPreferences(req.user.db_id, function(class_preferences){
-					console.log(class_preferences);
 					res.render("create_class", {'app_version': pjson.version,'class_preferences': class_preferences});
 				});
 			}
@@ -593,7 +592,7 @@ function getClassPreferences(db_id, callback){
 	});
 }
 
-app.post('/saveprofile', ensureAuthenticated, function(req, res){
+app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 	var profile_data = req.body;
 	var displayName,email,birthdate,isInstructor;
 	try{
@@ -639,6 +638,16 @@ app.post('/post/createclass', ensureAuthenticated, function(req, res){
 	console.log(class_data);
 	res.send('success');
 });
+
+/*
+* update a class
+*/
+app.post('/post/updateclass', ensureAuthenticated, function(req, res){
+	var class_data = req.body;
+	console.log(class_data);
+	res.send('update class');
+});
+
 
 
 app.get('/saveprofilecomplete', ensureAuthenticated, function(req, res){

@@ -159,33 +159,42 @@ app.use(session({ secret: 'keyboard cat', key: 'sid'}));
 app.use(passport.initialize());
 app.use(passport.session());
 
+//
 
-// Routing
-/*app.get('/login', function(req, res){
-	//req.session.lastPage = '/login';
-	res.render("main", {'app_version': pjson.version});
+app.get('/auth/facebook/callback*', function(req, res, next){
+	//get param page from url
+	var page = req.query.p;
+	var req_url = 'http://localhost:3000/auth/facebook/callback';
+	var redirect_url = '/register';
+	if(page != undefined){
+		req_url += "?p=" + page;
+		switch(page){
+			case 'profile':
+				redirect_url = '/profile';
+				break;
+		}
+	}
+
+	passport.authenticate('facebook', {
+		callbackURL: req_url,
+		successRedirect: redirect_url,
+		failureRedirect: '/login',
+		scope: ['user_friends', 'email', 'user_actions.fitness', 'user_birthday', 'user_location', 'user_events'],
+	})(req, res, next)
 });
 
-app.get('/start', function(req, res){
-	res.render("start", {'app_version': pjson.version});
-});*/
-
-app.get('/auth/facebook/callback',
-	passport.authenticate('facebook', {
-		successRedirect: '/register',
-		failureRedirect: '/login',
-		scope: ['user_friends', 'email', 'user_actions.fitness', 'user_birthday', 'user_location', 'user_events']
-	}),
-	function(req, res){
-		res.redirect('/register');
+app.get('/auth/facebook*', function(req, res, next){
+	//get param page from url
+	var page = req.query.p;
+	var req_url = 'http://localhost:3000/auth/facebook/callback';
+	if(page != undefined){
+		req_url += "?p=" + page;
 	}
-);
-
-app.get('/auth/facebook', 
 	passport.authorize('facebook', {
-		scope: ['user_friends', 'email', 'user_actions.fitness', 'user_birthday', 'user_location', 'user_events']
-	})
-);
+		scope: ['user_friends', 'email', 'user_actions.fitness', 'user_birthday', 'user_location', 'user_events'],
+		callbackURL: req_url,
+	})(req, res, next);
+});
 
 app.get('/logout', function(req, res){
 	req.logout();

@@ -65,13 +65,13 @@ $(document).ready(function(){
 
 </script>
 
-<!--<div align="center">
+<div align="center">
 	<span class="app_title" style="margin-top: 10px; display: inline-block">Fitted</span>
 	<div class="app_body">
 		<%if (isInstructor >= 1) { %>
-			instructor
+			<% include account/dashboard-instructor %> 
 		<% } else { %>
-			user
+			<% include account/dashboard-user %> 
 		<% } %>
 	</div>
 </div>
@@ -80,71 +80,11 @@ $(document).ready(function(){
 		Dashboard
 		<div class="dashboard-footer-cell-selected">
 		</div>
-	</div>
-	<a href="/schedule"><div class="dashboard-footer-cell">
+	</div><!--
+	--><a href="/schedule"><div class="dashboard-footer-cell">
 		Schedule
 	</div></a>
-</div>-->
-
-<loader class="hide-loader">
-	<div class='loader-inner'>
-		<i class="fa fa-spinner" id="loading-icon" aria-hidden="true"></i>
-	</div>
-</loader>
-
-<div class="header-bar hide" align="center">
-	<span class="title">title</span>
-	<!--<div style="margin-top: 10px;">
-		<div class="tiny-bubble">1</div>
-		<div class="tiny-bubble">2</div>
-		<div class="tiny-bubble">3</div>
-		<div class="tiny-bubble">4</div>
-	</div>-->
 </div>
-<div class="graphic-triangle" align="left">
-	<img src='/static/img/triangle_graphic_placeholder.png'>
-</div>
-<div class="content" style="padding: 0">
-
-	<div class="card" align="center" style="margin-top: 100px;">
-		<span class='title'>You have no<br> classes to<br> schedule!</span>
-		<div class="divider-15"></div>
-		<button class='grey-btn'>Create class</button>
-	</div>
-
-</div>
-
-<div class="footer-b" align='right'>
-	<div class="footer-triangle-b">test</div>
-	<div class="footer-bar" align="center">
-		<div class="footer-bar-cell">
-			<a href="#"><div class="footer-bar-btn">
-				<i class="fa fa-th-list" aria-hidden="true"></i><br>
-				dashboard
-			</div></a>
-		</div>
-		<div class="footer-bar-cell footer-bar-cell-selected">
-			<a href="#"><div class="footer-bar-btn">
-				<i class="fa fa-calendar-o" aria-hidden="true"></i><br>
-				upcoming
-			</div></a>
-		</div>
-		<div class="footer-bar-cell">
-			<a href="#"><div class="footer-bar-btn">
-			<i class="fa fa-plus" aria-hidden="true"></i><br>
-				add class
-			</div></a>
-		</div>
-		<div class="footer-bar-cell">
-			<a href="#"><div class="footer-bar-btn">
-				<i class="fa fa-user-o" aria-hidden="true"></i><br>
-				profile
-			</div></a>
-		</div>
-	</div>
-</div>
-
-
 </body>
 
 </html>

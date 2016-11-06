@@ -50,7 +50,7 @@ window.fbAsyncInit = function() {
 		function(response){
 			if(response && !response.error) {
 				//fill in inputs
-				$('#reg_displayName').val(response.first_name + " " + response.last_name);
+				$('#reg_name').val(response.first_name + " " + response.last_name);
 				$('#reg_email').val(response.email);
 
 				//need to figure out the zip code stuff...complicated?
@@ -83,139 +83,11 @@ window.fbAsyncInit = function() {
 	var user_id = <%=user.id%>;
 </script>
 
-<!--<div class="reg-header_a reg-body-bottom" align="center">
-	<span style="width: 50%;display:inline-block;">
-		<b>Confirm or Edit Your Profile Details</b>
-	</span>
-</div>
-<div class="reg-user-profile-container" align="center">
-	<div class="reg-user-profile">
-		<img id="reg-user-profile-image">
+<loader class="hide-loader">
+	<div class='loader-inner'>
+		<i class="fa fa-spinner" id="loading-icon" aria-hidden="true"></i>
 	</div>
-</div>
-
-<div class="reg-body reg-body-bottom" align="center">
-	<span>
-		<button class="btn fitted_button fitted_button-selected" id="student_btn">I'm a student</button><br>
-		<button class="btn fitted_button" id="instructor_btn">I'm an instructor</button>
-	</span>
-	<br><br>
-	<div align="left">
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Name
-			</div>
-			<input type="text" class="regInp" placeholder="Olivia Coolio" id="reg_displayName">
-		</div>
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Email
-			</div>
-			<input type="text" class="regInp" placeholder="olivia.culpo@gmail.com" id="reg_email">
-		</div>
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Location (zip code)
-			</div>
-			<input type="text" class="regInp" placeholder="30307" value="30307" id="reg_location" onkeypress="return isNumberKey(event)" maxlength="15">
-		</div>
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Birthday
-			</div>
-			<select class="selectMM" id="reg_bday_mm">
-			 	<option value="01">January</option>
-  				<option value="02">February</option>
-  				<option value="03">March</option>
-  				<option value="04">April</option>
-  				<option value="05">May</option>
-  				<option value="06">June</option>
-  				<option value="07">July</option>
-  				<option value="08">August</option>
-  				<option value="09">September</option>
-  				<option value="10">October</option>
-  				<option value="11">November</option>
-  				<option value="12">December</option>
-			</select>
-
-			<input type="text" class="regInp regInp-DD" placeholder="DD" id="reg_bday_dd" onkeypress="return isNumberKey(event)" maxlength="2">
-			<input type="text" class="regInp regInp-YYYY" placeholder="YYYY" id="reg_bday_yyyy" onkeypress="return isNumberKey(event)" maxlength="4">
-		</div>
-
-		<div class="reg-inp-group">
-			<div class="reg-inp-group-title">
-				Friends on Fitted
-			</div>
-			<div class="reg-friend">
-				<div class="reg-friend-icon">
-					<img class='reg-friend-img'>
-				</div>
-				Sarah
-			</div>
-			<div class="reg-friend">
-				<div class="reg-friend-icon">
-					<img class='reg-friend-img'>
-				</div>
-				Becca
-			</div>
-			<div align="center">
-				<button class="btn fitted_button slick-next">Invite your friends</button>
-			</div>
-		</div>
-	</div>
-</div>
-
-<div class="reg-confirm" id="reg_completed">
-	This is fine. Let's see classes
-</div>
-
-
-<script>
-	$(document).ready(function(){
-
-		$('.fitted_button').mouseup(function(){
-			if($(this).attr('id') == 'instructor_btn'){
-				$('#student_btn').removeClass('fitted_button-selected');
-			}
-			else {
-				$('#instructor_btn').removeClass('fitted_button-selected');
-			}
-			$(this).addClass('fitted_button-selected');
-		});
-
-		$("#reg_completed").mouseup(function(){
-			var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
-			var isInstructor = 0;
-			if($("#instructor_btn").hasClass('fitted_button-selected')){
-				isInstructor = 1;
-			}
-			var reg_data = {
-				"data": {
-					"display_name": $('#reg_displayName').val(),
-					"email": $("#reg_email").val(),
-					"birthday": bday_str,
-					"location": $('#reg_location').val(),
-					"isInstructor": isInstructor
-				},
-			}
-			//POST it
-			$.ajax({
-				type: "POST",
-				url: "/regcomplete",
-				data: JSON.stringify(reg_data),
-				contentType: 'application/json',
-				dataType: 'json',
-				processData: false,
-				contentType: "application/json; charset=utf-8",
-				complete: function(data){
-					window.location.replace('/regclassprefs');
-				}
-			});
-		});
-	});
-</script>
-
-</div>-->
+</loader>
 
 <div class="header-bar" align="center">
 	<span class="title">Get Started</span>
@@ -231,7 +103,7 @@ window.fbAsyncInit = function() {
 	<div id="page1">
 		<div class="title">What would you like to <br>sign up as?</div><br>
 
-		<p><button class="select-btn">An Instructor</button></p>
+		<p><button class="select-btn" id='instructor_btn'>An Instructor</button></p>
 		<p><button class="select-btn select-btn-selected">A student</button></p>
 	</div>
 
@@ -250,7 +122,7 @@ window.fbAsyncInit = function() {
 			<div class="divider-15"></div>
 			<div>
 				<span class="input-title">Location</span>
-				<input type="text" class="input-line input-line-max" placeholder="73532" id="reg_location">
+				<input type="text" class="input-line input-line-max" value="73532" id="reg_location">
 			</div>
 			<div class="divider-15"></div>
 			<div>
@@ -275,13 +147,13 @@ window.fbAsyncInit = function() {
 					</div>
 
 					<div style="display: table-cell; padding-right: 5px; width: 60px;">
-						<input type="text" class="input-line input-line-max" placeholder="01" id=""> 
+						<input type="text" class="input-line input-line-max" placeholder="01" id="reg_bday_dd"> 
 					</div>
 
 					<div style="display: table-cell;">
-						<select class="select-line" id="reg_bday_mm">
+						<select class="select-line" id="reg_bday_yyyy">
 							<% for (var i = 1916; i < (1916+100); i++) { %>
-								<option value="01"><%-i %></option>
+								<option value="<%-i%>"><%-i %></option>
 							<% } %>
 						</select>
 					</div>
@@ -353,7 +225,7 @@ window.fbAsyncInit = function() {
 
 <footer>
 	<div align="center">
-		<button class="bottom-btn" id="continue">continue</button>
+		<button class="bottom-btn" id="continue" isSubmittable=false>continue</button>
 	</div>
 </footer>
 
@@ -381,10 +253,21 @@ updateBubbleNumbers();
 
 $("#continue").mouseup(function(){
 	$('.content').slick('slickNext');
+	if($('.content').slick('slickCurrentSlide') == 3 && $('#continue').attr('isSubmittable') == 'true'){
+		submitData();
+	}
 });
 
 $('.content').on('afterChange', function(){
 	updateBubbleNumbers();
+	if($('.content').slick('slickCurrentSlide') == 3){
+		$('#continue').html('complete');
+		$('#continue').attr('isSubmittable', true)
+	}
+	else {
+		$('#continue').html('continue');
+		$('#continue').attr('isSubmittable', false)
+	}
 });
 
 /*
@@ -411,13 +294,144 @@ function updateDescCount(){
 }
 updateDescCount();
 
-$('#page3')
+var selected_exercises = [];
+$('#page3 .select-btn').mouseup(function(){
+	if(!$(this).hasClass('select-btn-selected')){
+		if(selected_exercises.length >= 3){
+			var deleted = selected_exercises[0];
+			selected_exercises.shift();
+			$('#page3 .select-btn[exercise_id]').each(function(){
+				if($(this).attr('exercise_id') == deleted ){
+					$(this).removeClass('select-btn-selected');
+				}
+			});
+		}
+		selected_exercises.push($(this).attr('exercise_id'));
+		$(this).addClass('select-btn-selected')
+	} else {
+		var this_id = $(this).attr('exercise_id');
+		var index = selected_exercises.indexOf(this_id);
+		if (index > -1) {
+		    selected_exercises.splice(index, 1);
+		}
+		$(this).removeClass('select-btn-selected');
+	}
+});
 
 /*
 *	page 4 - credit card
 */
 
 
+/*
+* attempt to submit data
+*/
+function submitData(){
+	//console.log('submitData');
+	$('loader').removeClass('hide-loader'); //disable everything, show loading thing
+
+	//start making the object..oh joy
+	//check and make sure it's filled in if not cancel everything
+
+	/*var reg_data = {
+				"data": {
+					"display_name": $('#reg_displayName').val(),
+					"email": $("#reg_email").val(),
+					"birthday": bday_str,
+					"location": $('#reg_location').val(),
+					"isInstructor": isInstructor
+			},
+	}*/
+
+	//PAGE 1
+	//get instructor
+	var isInstructor = 0;
+	if($("instructor_btn").hasClass('select-btn-selected')){
+		isInstructor = 1;
+	}
+
+	//PAGE 2
+	//get name
+	var name = $('#reg_name').val();
+	if(name.length <= 0){
+		cancelSubmission("Error: You didn't enter a name.", 2);
+	}
+
+	//get email
+	var email = $('#reg_email').val();
+	if(email.length <= 0){
+		//also need to check if email already exists
+		cancelSubmission("Error: You didn't enter an email address.", 2);
+	}
+
+	//location
+	var location = $('#reg_location').val();
+	if(location.length <= 0){
+		cancelSubmission("Error: You didn't enter a location.", 2);
+	}
+
+	//birthday
+	//month
+	//day
+	//year
+	var bday_str = String($("#reg_bday_mm").val()) + "/" + String($("#reg_bday_dd").val()) + "/" + String($("#reg_bday_yyyy").val());
+
+
+	//PAGE 3
+	//fitness specialties
+	//use array
+	if(selected_exercises.length <= 0) {
+		cancelSubmission("Error: you didn't select any exercise preferences!", 3);
+	}
+
+	//description
+	//check for injection
+	var description = $("#description").val();
+
+
+	//PAGE 4
+	//debit card name
+	//card no
+	//expiration date
+	//cvv code
+	//dont bother with credit card for now
+
+	var reg_data = {
+		"data": {
+			"display_name": name,
+			"email": email,
+			"birthday": bday_str,
+			"location": location,
+			"isInstructor": isInstructor,
+			"selected_exercises": selected_exercises,
+			"description": description
+		},
+	}
+
+	//POST it
+	$.ajax({
+		type: "POST",
+		url: "/regcomplete",
+		data: JSON.stringify(reg_data),
+		contentType: 'application/json',
+		dataType: 'json',
+		processData: false,
+		contentType: "application/json; charset=utf-8",
+		complete: function(data){
+			window.location.replace('/auth/facebook?p=dashboard');
+		}
+	});
+}
+
+//show error and jump to page
+function cancelSubmission(err, page){
+	page -= 1;
+	$('loader').addClass('hide-loader');
+	alert(err);
+	$(".content").slick('slickGoTo', page);
+	updateBubbleNumbers();
+
+}
 
 </script>
 

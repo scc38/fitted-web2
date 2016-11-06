@@ -172,6 +172,9 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 			case 'profile':
 				redirect_url = '/profile';
 				break;
+			case 'dashboard':
+				redirect_url = '/dashboard';
+				break;
 		}
 	}
 	passport.authenticate('facebook', {
@@ -349,29 +352,6 @@ app.get('/register', ensureAuthenticated, function(req, res){
 		If it does, then redirect to account page.
 	*/
 
-	/*
-
-		var isRegistered = false;
-	connection.query('SELECT * FROM exercise_types', function(err, row, fields){
-		if(!err){
-			if(row.length <= 0){
-				//?!? nothing
-				//res.render("register", {'app_version': pjson.version, 'user': req.user});
-			}
-			else {
-				//got class types
-				res.render("register_prefs_user", {'app_version': pjson.version, 'class_types': row});
-			}
-		}
-		else {
-			console.log("Error querying database");
-		}
-
-		connection.end();
-	});
-
-	*/
-
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
@@ -478,24 +458,44 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	var birthdate = new Date(data.birthday).getMySQL();
 	var location = parseInt(data.location);
 	var isInstructor = data.isInstructor;
+	var description = data.description;
+	var selected_exercises = data.selected_exercises;
+
 	//sql injection vulnerablity-fix this
 	/*var new_user = `UPDATE users SET (reg_date, display_name, email, birthdate, location, confirmed) ` +
 		`VALUES( NOW(), '${display_name}', '${email}', '${birthdate}', '${location}', 1 ) WHERE facebook_id = '${req.user.id}'`*/
 
-	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', isInstructor='${isInstructor}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
+	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', isInstructor='${isInstructor}', description='${description}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
 
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){
 		if(!err){
-	        res.send('user update success');
+	        //now add regclass prefs
+	        for(var i = 0; i < selected_exercises.length; i++){
+				var query = `INSERT INTO user_class_preferences (user_id, exercise_type_id) VALUES('${req.user.db_id}', '${selected_exercises[i]}')`;
+
+				connection.query(query, function(err, row, fields){
+					
+					if(err) {
+						console.log(err);
+						//res.send('err');
+					}
+					else {
+						//res.send("success");
+					}
+					///res.send('success');
+				});
+			}
+			res.send("success");
+			connection.end();
 		}
 		else {
-			res.send('error updating user');
+			//res.send('error updating user');
 		}
 
 		if(err != null) console.log(err);
 
-		connection.end();
+		//connection.end();
 	});
 });
 

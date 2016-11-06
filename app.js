@@ -210,8 +210,48 @@ app.get('/login', function(req, res){
 /*
 * Main app
 */
+app.get('/search*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'search.ejs', 
+				'footer': 'dashboard-search',
+				'isInstructor': req.user.isInstructor
+			});
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
 
 app.get('/dashboard*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'dashboard.ejs', 
+				'footer': 'dashboard-search',
+				'isInstructor': req.user.isInstructor
+			});
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
+
+
+app.get('/upcoming*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -229,6 +269,24 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 		}
 	});
 
+});
+
+app.get('/addclass*', ensureAuthenticated, function(req, res){
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'addclass.ejs', 
+				'footer': 'addclass',
+				'isInstructor': req.user.isInstructor
+			});
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
 });
 
 
@@ -290,7 +348,9 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 						'app_version': pjson.version, 
 						'page': 'profile.ejs', 
 						'footer': 'profile',
-						'isInstructor': req.user.isInstructor
+						'isInstructor': req.user.isInstructor,
+						'user': row[0],
+						'class_preferences': class_preferences,
 					});
 				});
 			}
@@ -650,6 +710,7 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 		email = req.body['email']; //gonna need to check email because email has an UNIQUE key
 		birthdate = req.body['birthdate'];
 		isInstructor = parseInt(req.body['isInstructor']);
+		description = req.body['description'];
 	} catch(err){
 		console.log(error);
 	}
@@ -663,7 +724,7 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 	});
 	connection.connect();
 
-	var updateProfileQuery = `UPDATE users SET display_name='${displayName}', email='${email}', birthdate='${birthdate}', isInstructor='${isInstructor}' WHERE id='${req.user.db_id}'`;
+	var updateProfileQuery = `UPDATE users SET display_name='${displayName}', email='${email}', birthdate='${birthdate}', isInstructor='${isInstructor}', description='${description}' WHERE id='${req.user.db_id}'`;
 
 	connection.query(updateProfileQuery, function(err, row, fields){
 		connection.end();

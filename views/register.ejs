@@ -327,21 +327,10 @@ $('#page3 .select-btn').mouseup(function(){
 * attempt to submit data
 */
 function submitData(){
-	//console.log('submitData');
 	$('loader').removeClass('hide-loader'); //disable everything, show loading thing
 
 	//start making the object..oh joy
 	//check and make sure it's filled in if not cancel everything
-
-	/*var reg_data = {
-				"data": {
-					"display_name": $('#reg_displayName').val(),
-					"email": $("#reg_email").val(),
-					"birthday": bday_str,
-					"location": $('#reg_location').val(),
-					"isInstructor": isInstructor
-			},
-	}*/
 
 	//PAGE 1
 	//get instructor
@@ -418,7 +407,7 @@ function submitData(){
 		processData: false,
 		contentType: "application/json; charset=utf-8",
 		complete: function(data){
-			window.location.replace('/auth/facebook?p=dashboard');
+			window.location.replace('/auth/facebook?p=upcoming');
 		}
 	});
 }

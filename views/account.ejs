@@ -47,7 +47,7 @@ $(document).ready(function(){
 				function(response){
 					if (response && !response.error) {
 		        		//document.getElementById("reg-user-profile-image").src = response.data.url;
-		        		$('.app_user_icon img').attr('src', response.data.url);
+		        		$(".profile-picture-image").attr('src', response.data.url);
 		      		}
 				}
 			);
@@ -88,36 +88,51 @@ $(document).ready(function(){
 	<%- include(page) %>
 
 </div>
-
+<div class="footer-triangle-b"></div>
 <div class="footer-b" align='right'>
-	<div class="footer-triangle-b">test</div>
 	<div class="footer-bar" align="center">
+		<%if (footer == "dashboard-search"){ %>
+		<div class="footer-bar-cell footer-bar-cell-selected">
+		<% } else { %>
 		<div class="footer-bar-cell">
+		<% } %>
 			<%if (isInstructor >= 1) { %>
-				<a href="#"><div class="footer-bar-btn">
+				<a href="/dashboard"><div class="footer-bar-btn">
 					<i class="fa fa-th-list" aria-hidden="true"></i><br>
 					dashboard
 				</div></a>
 			<% } else { %>
-				<a href="#"><div class="footer-bar-btn">
+				<a href="/search"><div class="footer-bar-btn">
 					<i class="fa fa-search" aria-hidden="true"></i><br>
 					search
 				</div></a>
 			<% } %>
 		</div>
+		<%if (footer == "upcoming"){ %>
 		<div class="footer-bar-cell footer-bar-cell-selected">
-			<a href="/dashboard"><div class="footer-bar-btn">
+		<% } else { %>
+		<div class="footer-bar-cell">
+		<% } %>
+			<a href="/upcoming"><div class="footer-bar-btn">
 				<i class="fa fa-calendar-o" aria-hidden="true"></i><br>
 				upcoming
 			</div></a>
 		</div>
+		<%if (footer == "addclass"){ %>
+		<div class="footer-bar-cell footer-bar-cell-selected">
+		<% } else { %>
 		<div class="footer-bar-cell">
-			<a href="#"><div class="footer-bar-btn">
+		<% } %>
+			<a href="/addclass"><div class="footer-bar-btn">
 			<i class="fa fa-plus" aria-hidden="true"></i><br>
 				add class
 			</div></a>
 		</div>
+		<%if (footer == "profile"){ %>
+		<div class="footer-bar-cell footer-bar-cell-selected">
+		<% } else { %>
 		<div class="footer-bar-cell">
+		<% } %>
 			<a href="/profile"><div class="footer-bar-btn">
 				<i class="fa fa-user-o" aria-hidden="true"></i><br>
 				profile

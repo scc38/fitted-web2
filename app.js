@@ -216,7 +216,12 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.render("account", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
+			res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'upcoming.ejs', 
+				'footer': 'upcoming',
+				'isInstructor': req.user.isInstructor
+			});
 		}
 		else {
 			//user is not confirmed
@@ -230,7 +235,7 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 /*
 *	user schedule
 */
-app.get('/schedule', ensureAuthenticated, function(req, res){
+/*app.get('/schedule', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -242,15 +247,15 @@ app.get('/schedule', ensureAuthenticated, function(req, res){
 		}
 	});
 
-});
+});*/
 
 /*
 *	payment- implement BrainTree
 *	https://developers.braintreepayments.com/start/hello-client/javascript/v3
 */
-app.get('/payment*', ensureAuthenticated, function(req, res){
+/*app.get('/payment*', ensureAuthenticated, function(req, res){
 	res.render('payment', {'app_version': pjson.version});
-});
+});*/
 
 
 /*
@@ -280,7 +285,13 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 				getClassPreferences(req.user.db_id, function(class_preferences){
 					//user exists. redirect them to main account page.
 					//console.log(class_preferences);
-					res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
+					//res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
+					res.render("account", {
+						'app_version': pjson.version, 
+						'page': 'profile.ejs', 
+						'footer': 'profile',
+						'isInstructor': req.user.isInstructor
+					});
 				});
 			}
 		}
@@ -299,7 +310,7 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 /*
 *	Create class
 */
-app.get('/createclass*', ensureAuthenticated, function(req, res){
+/*app.get('/createclass*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -319,12 +330,12 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 		}
 	});
 
-});
+});*/
 
 /*
 *	schedule class
 */
-app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
+/*app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -342,7 +353,7 @@ app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
 		}
 	});
 
-});
+});*/
 
 
 

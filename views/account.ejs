@@ -1,5 +1,5 @@
 <% include header.ejs %>
-<body style='background-color: #f3f3f3;'>
+<body>
 <!--facebook code-->
 <script>
 var isNumberKey = function(evt){
@@ -65,27 +65,6 @@ $(document).ready(function(){
 
 </script>
 
-<!--<div align="center">
-	<span class="app_title" style="margin-top: 10px; display: inline-block">Fitted</span>
-	<div class="app_body">
-		<%if (isInstructor >= 1) { %>
-			instructor
-		<% } else { %>
-			user
-		<% } %>
-	</div>
-</div>
-<div class="dashboard-footer">
-	<div class="dashboard-footer-cell">
-		Dashboard
-		<div class="dashboard-footer-cell-selected">
-		</div>
-	</div>
-	<a href="/schedule"><div class="dashboard-footer-cell">
-		Schedule
-	</div></a>
-</div>-->
-
 <loader class="hide-loader">
 	<div class='loader-inner'>
 		<i class="fa fa-spinner" id="loading-icon" aria-hidden="true"></i>
@@ -106,11 +85,7 @@ $(document).ready(function(){
 </div>
 <div class="content" style="padding: 0">
 
-	<div class="card" align="center" style="margin-top: 100px;">
-		<span class='title'>You have no<br> classes to<br> schedule!</span>
-		<div class="divider-15"></div>
-		<button class='grey-btn'>Create class</button>
-	</div>
+	<%- include(page) %>
 
 </div>
 
@@ -118,13 +93,20 @@ $(document).ready(function(){
 	<div class="footer-triangle-b">test</div>
 	<div class="footer-bar" align="center">
 		<div class="footer-bar-cell">
-			<a href="#"><div class="footer-bar-btn">
-				<i class="fa fa-th-list" aria-hidden="true"></i><br>
-				dashboard
-			</div></a>
+			<%if (isInstructor >= 1) { %>
+				<a href="#"><div class="footer-bar-btn">
+					<i class="fa fa-th-list" aria-hidden="true"></i><br>
+					dashboard
+				</div></a>
+			<% } else { %>
+				<a href="#"><div class="footer-bar-btn">
+					<i class="fa fa-search" aria-hidden="true"></i><br>
+					search
+				</div></a>
+			<% } %>
 		</div>
 		<div class="footer-bar-cell footer-bar-cell-selected">
-			<a href="#"><div class="footer-bar-btn">
+			<a href="/dashboard"><div class="footer-bar-btn">
 				<i class="fa fa-calendar-o" aria-hidden="true"></i><br>
 				upcoming
 			</div></a>
@@ -136,7 +118,7 @@ $(document).ready(function(){
 			</div></a>
 		</div>
 		<div class="footer-bar-cell">
-			<a href="#"><div class="footer-bar-btn">
+			<a href="/profile"><div class="footer-bar-btn">
 				<i class="fa fa-user-o" aria-hidden="true"></i><br>
 				profile
 			</div></a>

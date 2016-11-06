@@ -34,8 +34,8 @@ window.fbAsyncInit = function() {
 		FB.api("/" + user_id + "/picture?width=9999", 
 			function(response){
 				if (response && !response.error) {
-	        		document.getElementById("reg-user-profile-image").src = response.data.url;
-	        		$(".reg-friend-img").attr('src', response.data.url);
+	        		//document.getElementById("reg-user-profile-image").src = response.data.url;
+	        		$(".profile-picture-image").attr('src', response.data.url);
 	      		}
 			}
 		);
@@ -78,13 +78,12 @@ window.fbAsyncInit = function() {
 });
 </script>
 
-<body>
+<body>	
 <script>
 	var user_id = <%=user.id%>;
-	//getProfilePicture(user_id);
 </script>
 
-<div class="reg-header_a reg-body-bottom" align="center">
+<!--<div class="reg-header_a reg-body-bottom" align="center">
 	<span style="width: 50%;display:inline-block;">
 		<b>Confirm or Edit Your Profile Details</b>
 	</span>
@@ -216,6 +215,211 @@ window.fbAsyncInit = function() {
 	});
 </script>
 
+</div>-->
+
+<div class="header-bar" align="center">
+	<span class="title">Get Started</span>
+	<div style="margin-top: 10px;">
+		<div class="tiny-bubble">1</div>
+		<div class="tiny-bubble">2</div>
+		<div class="tiny-bubble">3</div>
+		<div class="tiny-bubble">4</div>
+	</div>
 </div>
+
+<div class="content" align="center">
+	<div id="page1">
+		<div class="title">What would you like to <br>sign up as?</div><br>
+
+		<p><button class="select-btn">An Instructor</button></p>
+		<p><button class="select-btn select-btn-selected">A student</button></p>
+	</div>
+
+	<div id="page2">
+		<div class="title">Confirm your account details.</div><br>
+		<div align="left" style="color: #001B38; padding-left: 15px; padding-right: 15px;">
+			<div>
+				<span class="input-title">Name</span>
+				<input type="text" class="input-line input-line-max" placeholder="Olivia Culpo" id="reg_name">
+			</div>
+			<div class="divider-15"></div>
+			<div>
+				<span class="input-title">Email</span>
+				<input type="text" class="input-line input-line-max" placeholder="olivia.culpo@gmail.com" id="reg_email">
+			</div>
+			<div class="divider-15"></div>
+			<div>
+				<span class="input-title">Location</span>
+				<input type="text" class="input-line input-line-max" placeholder="73532" id="reg_location">
+			</div>
+			<div class="divider-15"></div>
+			<div>
+				<span class="input-title">Birthday</span><br>
+				<div class='display: table; width: 100%;'>
+
+					<div style="display: table-cell; padding-right: 5px;">
+						<select class="select-line" id="reg_bday_mm">
+							<option value="01">January</option>
+							<option value="02">February</option>
+							<option value="03">March</option>
+							<option value="04">April</option>
+							<option value="05">May</option>
+							<option value="06">June</option>
+							<option value="07">July</option>
+							<option value="08">August</option>
+							<option value="09">September</option>
+							<option value="10">October</option>
+							<option value="11">November</option>
+							<option value="12">December</option>
+						</select>
+					</div>
+
+					<div style="display: table-cell; padding-right: 5px; width: 60px;">
+						<input type="text" class="input-line input-line-max" placeholder="01" id=""> 
+					</div>
+
+					<div style="display: table-cell;">
+						<select class="select-line" id="reg_bday_mm">
+							<% for (var i = 1916; i < (1916+100); i++) { %>
+								<option value="01"><%-i %></option>
+							<% } %>
+						</select>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id='page3'>
+		<div class="title">Your profile picture.</div>
+		<div class="profile-picture"><img class='profile-picture-image'></div>
+		<div class="divider-15"></div>
+		<div class="title">
+			What are your fitness specialties?
+			<div class="subtitle">Select up to three.</div>
+			<div class="divider-15"></div>
+			<% var exercise_json = JSON.parse(JSON.stringify((exercise_types))) %>
+			<% for(var i = 0; i < exercise_json.length; i++) { %>
+			<p><button class="select-btn" exercise_id='<%=exercise_json[i]["id"]%>'><%= exercise_json[i]['name'] %></button></p>
+			<% } %>
+		</div><br>
+		<div class="title">Write a little about yourself.</div>
+		<div style="margin-left: 30px; margin-right: 30px;">
+			<textarea rows=8 placeholder="Type here..." maxlength="400" id="description" onkeyup="updateDescCount()"></textarea>
+		</div>
+		<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px; margin-left: 30px;" align='left'>
+			<span id="desc_count">0</span> out of 400 characters
+		</div>
+	</div>
+
+	<div id='page4'>
+		<div class="title">Link your debit card.
+			<div class="subtitle">We'll transfer money you've earned to your bank account.</div>
+			<div class="divider-15"></div>
+		</div>
+		<div class="card">
+			<div class="i-card"><img src="/static/img/i_creditcard.png"></div>
+			<div align='left'>
+				<div>
+					<span class="input-title">Name on Debit Card</span>
+					<input type="text" class="input-line input-line-max" placeholder="Enter here" id="">
+				</div>
+				<div class="divider-15"></div>
+				<div>
+					<span class="input-title">Card Number</span>
+					<input type="text" class="input-line input-line-max" placeholder="Enter here" id="">
+				</div>
+				<div class="divider-15"></div>
+				<div>
+					<div style="display:inline-block; width: 50%; padding-right: 5px;">
+						<span class="input-title">Expiration Date</span>
+						<input type="text" class="input-line input-line-max" placeholder="Enter here" id=""> 
+					</div><!--
+					--><div style="display: inline-block; width: 50%; padding-left: 5px;">
+						<span class="input-title">CVV Code</span>
+						<input type="text" class="input-line input-line-max" placeholder="Enter here" id=""> 
+					</div>
+				</div>
+			</div>
+		</div>
+		<span class="input-title">Skip this step for now</span>
+		<div class="divider-15"></div>
+	</div>
+
+</div>
+
+<div class="footer-triangle"></div>
+
+<footer>
+	<div align="center">
+		<button class="bottom-btn" id="continue">continue</button>
+	</div>
+</footer>
+
+<script>
+$('.content').slick( {
+	arrows: false,
+	adaptiveHeight: true,
+	infinite: false,
+});
+
+$('.tiny-bubble').mouseup(function(){
+	new_slide_index = parseInt($(this).html()) - 1;
+	$(".content").slick('slickGoTo', new_slide_index);
+});
+function updateBubbleNumbers(){
+	var slick_index = $(".content").slick('slickCurrentSlide')+1;
+	$(".tiny-bubble").removeClass('tiny-bubble-selected');
+	$(".tiny-bubble").each(function(){
+		if(parseInt($(this).html()) == slick_index){
+			$(this).addClass('tiny-bubble-selected');
+		}
+	});
+}
+updateBubbleNumbers();
+
+$("#continue").mouseup(function(){
+	$('.content').slick('slickNext');
+});
+
+$('.content').on('afterChange', function(){
+	updateBubbleNumbers();
+});
+
+/*
+*	page 1 - what would you like to sign up as?
+*/
+$('#page1 .select-btn').mouseup(function(){
+	if(!$(this).hasClass('select-btn-selected')){
+		$('#page1 .select-btn').removeClass('select-btn-selected');
+		$(this).addClass('select-btn-selected');
+	}
+});
+
+/*
+*	page 2 - confirm account details
+*/
+
+
+/*
+*	page 3 - profile, fitness specialities, description
+*/
+function updateDescCount(){
+	var count = $("#description").val().length;
+	$('#desc_count').html(count);
+}
+updateDescCount();
+
+$('#page3')
+
+/*
+*	page 4 - credit card
+*/
+
+
+
+</script>
+
 </body>
 </html>

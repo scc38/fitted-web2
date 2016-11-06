@@ -174,7 +174,6 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 				break;
 		}
 	}
-
 	passport.authenticate('facebook', {
 		callbackURL: req_url,
 		successRedirect: redirect_url,
@@ -350,6 +349,29 @@ app.get('/register', ensureAuthenticated, function(req, res){
 		If it does, then redirect to account page.
 	*/
 
+	/*
+
+		var isRegistered = false;
+	connection.query('SELECT * FROM exercise_types', function(err, row, fields){
+		if(!err){
+			if(row.length <= 0){
+				//?!? nothing
+				//res.render("register", {'app_version': pjson.version, 'user': req.user});
+			}
+			else {
+				//got class types
+				res.render("register_prefs_user", {'app_version': pjson.version, 'class_types': row});
+			}
+		}
+		else {
+			console.log("Error querying database");
+		}
+
+		connection.end();
+	});
+
+	*/
+
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
@@ -366,7 +388,12 @@ app.get('/register', ensureAuthenticated, function(req, res){
 			connection.connect();
 
 			var isRegistered = false;
-			connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
+
+
+			connection.query('SELECT * FROM exercise_types', function(err, row, fields){
+				var exercise_rows = row;
+
+				connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
 				if(!err){
 					if(row.length <= 0){
 						//user does not yet exist, allow them to register
@@ -382,7 +409,7 @@ app.get('/register', ensureAuthenticated, function(req, res){
 						}
 						else {
 							//user is not confirmed. allow them to finish registering first.
-							res.render("register", {'app_version': pjson.version, 'user': req.user});
+							res.render("register", {'app_version': pjson.version, 'user': req.user, 'exercise_types': exercise_rows});
 						}
 					}
 				}
@@ -391,6 +418,8 @@ app.get('/register', ensureAuthenticated, function(req, res){
 				}
 
 				connection.end();
+				});
+
 			});
 		}
 	});

@@ -8,6 +8,7 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var url = require('url');
 
 var pjson = require('./package.json'); //for version number
 
@@ -163,8 +164,9 @@ app.use(passport.session());
 
 app.get('/auth/facebook/callback*', function(req, res, next){
 	//get param page from url
+	var hostname = req.headers.host;
 	var page = req.query.p;
-	var req_url = 'http://localhost:3000/auth/facebook/callback';
+	var req_url = 'http://' + hostname + '/auth/facebook/callback';
 	var redirect_url = '/register';
 	if(page != undefined){
 		req_url += "?p=" + page;
@@ -187,8 +189,9 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 
 app.get('/auth/facebook*', function(req, res, next){
 	//get param page from url
+	var hostname = req.headers.host;
 	var page = req.query.p;
-	var req_url = 'http://localhost:3000/auth/facebook/callback';
+	var req_url = 'http://' + hostname + '/auth/facebook/callback';
 	if(page != undefined){
 		req_url += "?p=" + page;
 	}

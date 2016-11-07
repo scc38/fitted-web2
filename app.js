@@ -173,7 +173,7 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 				redirect_url = '/profile';
 				break;
 			case 'dashboard':
-				redirect_url = '/dashboard';
+				redirect_url = '/upcoming';
 				break;
 		}
 	}
@@ -370,18 +370,24 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 /*
 *	Create class
 */
-/*app.get('/createclass*', ensureAuthenticated, function(req, res){
+app.get('/createclass*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed, check if is instructor
 			if(req.user.isInstructor >= 1){
 				getClassPreferences(req.user.db_id, function(class_preferences){
-					res.render("create_class", {'app_version': pjson.version,'class_preferences': class_preferences});
+					res.render("account", {
+						'app_version': pjson.version, 
+						'page': 'createclass.ejs', 
+						'footer': 'addclass',
+						'isInstructor': req.user.isInstructor,
+						'class_preferences': class_preferences,
+					});
 				});
 			}
 			else {
-				res.redirect('/dashboard');
+				res.redirect('/upcoming');
 			}
 		}
 		else {
@@ -390,7 +396,7 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 		}
 	});
 
-});*/
+});
 
 /*
 *	schedule class
@@ -426,7 +432,7 @@ app.get('/register', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.redirect('/dashboard');
+			res.redirect('/upcoming');
 		}
 		else {
 			//user is not confirmed, update user and confirm them

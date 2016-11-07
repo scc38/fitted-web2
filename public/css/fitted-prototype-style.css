@@ -48,6 +48,12 @@ h1,h2,h3,h5,h6 { margin: 0; padding: 0; }
 .hide { display: none; }
 
 /*
+*	hide google bottom logos etc- check legality on this?
+*	maybe it's fine if we have attribution elsewhere
+*/
+.gm-style-cc { display:none; }
+
+/*
 *	Global styles
 *	These are used throughout the app.
 */
@@ -112,18 +118,21 @@ h1,h2,h3,h5,h6 { margin: 0; padding: 0; }
 
 .exercise_btn {
 	background-image: linear-gradient(215deg, #404040 50%, #F57E25 100%);
-	border-radius: 10px;
+	border-radius: 15px;
 	font-size: 12px;
 	color: #FFFFFF;
 	letter-spacing: 0px;
 	text-transform: uppercase;
 	padding: 8px;
 	color: #FFF;
-	-webkit-box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.4);
-	-moz-box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.4);
-	box-shadow: 0px 0px 3px 0px rgba(0,0,0,0.4);
 	width: 230px;
 	font-weight: normal;
+}
+.exercise_btn-deselected {
+	background-image: none !important;
+	background-color: #FFF;
+	border: 1px solid #4C4C4C !important;
+	color: #001B38;
 }
 
 .tiny-bubble {
@@ -137,7 +146,24 @@ h1,h2,h3,h5,h6 { margin: 0; padding: 0; }
 .tiny-bubble-selected {
 	border: 1px solid #CCC;
 }
-.tiny-bubble:hover { cursor: pointer; }
+.large-bubble {
+	display: inline-block;
+	width: 55px;
+	border-radius: 55px;
+	background-color: #FFF;
+	text-align: center;
+	font-size: 16px;
+	padding: 10px;
+	border: 1px solid #9B9B9B;
+	margin-right: 10px;
+	margin-left: 10px;
+}
+.large-bubble-selected {
+	background-color: #9B9B9B !important;
+	color: #FFF !important;
+}
+
+.tiny-bubble:hover, .large-bubble:hover { cursor: pointer; }
 
 .input-line {
 	border: 0 !important;
@@ -162,8 +188,8 @@ textarea {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
     box-sizing: border-box;
-    padding: 15px;
-    font-size: 16px;
+    padding: 10px;
+    font-size: 18px;
     resize: none;
 }
 
@@ -200,6 +226,10 @@ textarea {
 	-webkit-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.4);
 	-moz-box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.4);
 	box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.4);
+	-webkit-transition: all .5s ease-in-out;
+    -moz-transition: all .5s ease-in-out;
+    -o-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
 }
 
 .header-bar .title {
@@ -232,12 +262,24 @@ textarea {
 	position: relative;
 	background-color: #FFF;
 	z-index: 998;
+	-webkit-transition: all .5s ease-in-out;
+    -moz-transition: all .5s ease-in-out;
+    -o-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
+    top: 0;
 }
 .card .title {
     margin-bottom: 15px;
     font-weight: lighter;
-    font-size: 20px;
+    font-size: 22px;
     color: #FE734A;
+}
+
+#starting-card {
+	-webkit-transition: all .5s ease-in-out;
+    -moz-transition: all .5s ease-in-out;
+    -o-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
 }
 
 .i-card {
@@ -253,6 +295,7 @@ textarea {
 	padding-left: 10px;
 	padding-right: 10px;
 	z-index: 999;
+	border-radius: 5px;
 }
 .i-card img { width: 100%; }
 

@@ -401,6 +401,13 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 
 });
 
+app.post('/post/previewclass', ensureAuthenticated, function(req, res){
+	var data = req.body;
+	//sql injection check here
+	res.render("class", {'app_version': pjson.version, 'class_data': data});
+});
+
+
 /*
 *	schedule class
 */
@@ -814,7 +821,7 @@ app.get('/api/locations*', function(req, res){
 //GET CLASSES
 app.get('/api/classes*', function(req, res){
 	//parse path
-	//params:day,month,year
+	//
 
 	//basic class object
 	/*var class_obj = {
@@ -834,39 +841,6 @@ app.get('/api/classes*', function(req, res){
 		class_description: '',
 	};*/
 
-	/*var class_obj = {
-		id: '1',
-		instructor_id: '',
-		instructor_name: 'Lionel Messi',
-		start_time: '2016-10-05 H',
-		end_time: '12:00PM',
-		type_class: '',
-		name_class: '',
-		location_zip: '',
-		venue: '',
-		min_students: '',
-		max_students: '',
-		date_created: '',
-		price: '',
-		class_description: '',
-	};
-
-	var class_obj = {
-		id: '2',
-		instructor_id: '',
-		instructor_name: 'Lionel Messi',
-		start_time: '',
-		end_time: '',
-		type_class: '',
-		name_class: '',
-		location_zip: '',
-		venue: '',
-		min_students: '',
-		max_students: '',
-		date_created: '',
-		price: '',
-		class_description: '',
-	};*/
 
 
 	//connect to database

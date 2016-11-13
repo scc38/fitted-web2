@@ -1,0 +1,44 @@
+<div align="center">
+	<b style="text-transform: uppercase;">Previewing Class</b>
+	<div class="divider-15"></div>
+	<div><%=class_data['type'] %></div>
+
+	<div><%= class_data['title']%></div>
+
+	<div>
+		<% if(class_data['date']){ %>
+		DATE
+		<% } else { %>
+		Date TBD 
+		<% } %> | 
+		<% if(class_data['date']){ %>
+		TIME
+		<% } else { %>
+		Time TBD 
+		<% } %> | <%= class_data['length']%> minutes
+	</div>
+</div>
+
+<div class="card">
+Instructor card
+</div>
+
+<div class="card">
+	<div class="title" align="center">
+	Description
+	</div>
+	<%= class_data['description'] %>
+</div>
+
+<div class="card">
+Class location
+</div>
+
+<div align="center">
+	<button class="bottom-btn" style='pointer-events: none; opacity: .4;'>
+		Reserve for $<%= class_data['price'] %>
+	</button>
+</div>
+
+<div class="divider-15"></div>
+<div class="divider-15"></div>

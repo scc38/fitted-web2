@@ -38,7 +38,7 @@
 			<span class='title'>Price per student</span><br>
 			<span style='position: relative;'>
 				<span style='position: absolute; left: -2px; font-size: 20px;'>$</span>
-				<input type="text" class="input-line" value="15.00" style="font-size: 24px; width: 80px; text-align: center;" id="reg_name" maxlength="5">
+				<input type="text" class="input-line" value="15.00" style="font-size: 24px; width: 80px; text-align: center;" id="class_price" maxlength="5">
 			</span>
 
 			<div class="divider-15"></div>
@@ -54,10 +54,10 @@
 			<span class='title'>Class Title</span>
 			<div class="divider-15"></div>
 			<div>
-				<textarea rows=2 placeholder="Type here (e.g. Olivia's Strength Training in the Park)" maxlength="50" id="class_description" onkeyup="updateDescCount()"></textarea>
+				<textarea rows=2 placeholder="Type here (e.g. Olivia's Strength Training in the Park)" maxlength="50" id="class_title" onkeyup="updateCount('#class_title', '#title_count')"></textarea>
 			</div>
-			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px; margin-left: 30px;" align='left'>
-				<span id="desc_count">0</span> out of 50 characters
+			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px;" align='left'>
+				<span id="title_count">0</span> out of 50 characters
 			</div>
 		</div>
 
@@ -65,9 +65,9 @@
 			<span class='title'>Class Description</span>
 			<div class="divider-15"></div>
 			<div>
-				<textarea rows=8 placeholder="Type here (e.g. Work up a sweat with body-weight exercises and cardio. Bring water and a towel.)" maxlength="400" id="class_description" onkeyup="updateDescCount()"></textarea>
+				<textarea rows=8 placeholder="Type here (e.g. Work up a sweat with body-weight exercises and cardio. Bring water and a towel.)" maxlength="400" id="class_description" onkeyup="updateCount('#class_description', '#desc_count')"></textarea>
 			</div>
-			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px; margin-left: 30px;" align='left'>
+			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px;" align='left'>
 				<span id="desc_count">0</span> out of 400 characters
 			</div>
 		</div>
@@ -83,7 +83,7 @@
 			<div align="left" style='margin-left: 15px; margin-right: 15px;'>
 				<div class="input-title" style="font-size: 10px;">Type an Address</div>
 				<div>
-				<textarea rows=3 placeholder="Enter Street, City, ZIP" maxlength="250" id="description" style='font-size: 20px;'></textarea>
+				<textarea rows=3 placeholder="Enter Street, City, ZIP" maxlength="250" id="location" style='font-size: 20px;'></textarea>
 				</div>
 			</div>
 			<div class="divider-15"></div>
@@ -91,10 +91,31 @@
 
 	</div>
 
-	<div id="pg3">
-		<div class="card">
-		preview- TBA
+	<div id="pg3" style="background-color: #FFF;">
+		<!--<div align="center">
+			Class type
+			<p>Class Title</p>
+			Date to be determined
 		</div>
+		<div class="card">
+			<div class="title" align='center'>Instructor</div>
+			Learn More button
+		</div>
+		<div class="card">
+			<div class="title" align="center">Class Description</div>
+		</div>
+		<div class="card">
+			<div class="title" align="center">Class Location</div>
+			Address
+		</div>
+
+		<div align="center">
+			<button class="bottom-btn" style='pointer-events: none; opacity: .4;'>
+				Reserve for $15.00
+			</button>
+		</div>
+		<div class="divider-15"></div>
+		<div class="divider-15"></div>-->
 	</div>
 </div>
 
@@ -117,20 +138,25 @@ $('#createclass_content').slick({
 	arrows: false,
 	adaptiveHeight: true,
 	infinite: false,
+	touchThreshold: 1,
 });
 
 //content
+var time_length = $('.large-bubble-selected').first().html();
 $(".large-bubble").mouseup(function(){
 	if(!$(this).hasClass('large-bubble-selected')){
 		$('.large-bubble').removeClass('large-bubble-selected');
 		$(this).addClass('large-bubble-selected');
+		time_length = $(this).html();
 	}
 });
 
+var exercise_type;
 $('.exercise_btn').mouseup(function(){
 	if($(this).hasClass('exercise_btn-deselected')){
 		$('.exercise_btn').addClass('exercise_btn-deselected');
 		$(this).removeClass('exercise_btn-deselected');
+		exercise_type = $(this).attr('class_id');
 	}
 });
 
@@ -138,6 +164,21 @@ $('.tiny-bubble').mouseup(function(){
 	new_slide_index = parseInt($(this).html()) - 1;
 	$("#createclass_content").slick('slickGoTo', new_slide_index);
 });
+
+
+/*function updateDescCount(){
+	var count = $("#description").val().length;
+	$('#desc_count').html(count);
+}
+*/
+function updateCount(elem, elem_count){
+	console.log('test');
+	var count = $(elem).val().length;
+	$(elem_count).html(count);
+}
+updateCount('#class_title', '#title_count');
+updateCount('#class_description', '#desc_count');
+
 function updateBubbleNumbers(){
 	var slick_index = $("#createclass_content").slick('slickCurrentSlide')+1;
 	$(".tiny-bubble").removeClass('tiny-bubble-selected');
@@ -151,9 +192,15 @@ updateBubbleNumbers();
 
 $('#createclass_content').on('afterChange', function(){
 	updateBubbleNumbers();
-	if($('#createclass_content').slick('slickCurrentSlide') == 2){
+	if($('#createclass_content').slick('slickCurrentSlide') == 1){
 		$('#continue').html('Preview & Schedule');
-		$('#continue').attr('isSubmittable', true)
+		$('#continue').attr('isSubmittable', true);
+	}
+	else if($('#createclass_content').slick('slickCurrentSlide') == 2){
+		$('#continue').html('Save');
+		$('#continue').attr('isSubmittable', true);
+		//make preview
+		updatePreview();
 	}
 	else {
 		$('#continue').html('continue');
@@ -162,11 +209,49 @@ $('#createclass_content').on('afterChange', function(){
 });
 
 $("#continue").mouseup(function(){
-	$('#createclass_content').slick('slickNext');
-	if($('#createclass_content').slick('slickCurrentSlide') == 3 && $('#continue').attr('isSubmittable') == 'true'){
+	//save
+	if($('#createclass_content').slick('slickCurrentSlide') == 2 && $('#continue').attr('isSubmittable') == 'true'){
 		submitData();
 	}
+	else{
+		$('#createclass_content').slick('slickNext');
+	}
 });
+
+function getClassData(){
+	var class_data = {
+		'type': exercise_type,
+		'length': time_length,
+		'price': $('#class_price').val(),
+		'students': 12,
+		'title': $('#class_title').val(),
+		'description': $('#class_description').val(),
+		'location': 'location',
+	}
+	return class_data;
+}
+
+function updatePreview(){
+	$('loader').removeClass('hide-loader');
+
+	var class_data = getClassData();
+
+	$.ajax({
+		type: "POST",
+		url: '/post/previewclass',
+		data: JSON.stringify(class_data),
+		contentType: "application/json",
+		success: function(data){
+			$("#pg3").html(data);
+			$('#createclass_content').slick('reinit'); //update slick height
+			$('loader').addClass('hide-loader');
+		}
+	});
+}
+
+function submitData(){
+	console.log('submitData');
+}
 
 //map
 function initMap() {

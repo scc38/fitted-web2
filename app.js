@@ -704,7 +704,10 @@ app.get('/api/locations*', function(req, res){
 //GET CLASSES
 app.get('/api/classes*', function(req, res){
 	//parse path
-	//params:day,month,year
+	//params:start and end time, type_class, maxprice
+
+	var query;
+	parseClass(req, query);
 
 	//basic class object
 	/*var class_obj = {
@@ -724,43 +727,27 @@ app.get('/api/classes*', function(req, res){
 		class_description: '',
 	};*/
 
-	/*var class_obj = {
-		id: '1',
-		instructor_id: '',
-		instructor_name: 'Lionel Messi',
-		start_time: '2016-10-05 H',
-		end_time: '12:00PM',
-		type_class: '',
-		name_class: '',
-		location_zip: '',
-		venue: '',
-		min_students: '',
-		max_students: '',
-		date_created: '',
-		price: '',
-		class_description: '',
-	};
-
-	var class_obj = {
-		id: '2',
-		instructor_id: '',
-		instructor_name: 'Lionel Messi',
-		start_time: '',
-		end_time: '',
-		type_class: '',
-		name_class: '',
-		location_zip: '',
-		venue: '',
-		min_students: '',
-		max_students: '',
-		date_created: '',
-		price: '',
-		class_description: '',
-	};*/
-
 
 	//connect to database
-	//look up class objects
+	var connection = mysql.createConnection({
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database
+	});
+	connection.connect();
+
+	//look up class objects – where I am little confused
+	connection.query(query, function(err, row, fields){
+		if(!err){
+			//success
+			res.send('success');
+		}
+		else {
+			console.log(err);
+			res.send(err);
+		}
+	});
 
 	//iterate through class objects and look up instructor name
 
@@ -768,6 +755,36 @@ app.get('/api/classes*', function(req, res){
 
 	res.json(class_obj);
 });
+
+function parseClass(req, query){
+	query = 'SELECT * FROM classes';
+	var atLeastOneExpression = false;
+	if(req.body['start_time'] !== '') {
+		dealWithWhereOrAnd(query,atLeastOneExpression);
+		query = query + 'start_time >= '$req.body['start_time']'';
+	}
+	if(req.body['end_time'] !== '') {
+		dealWithWhereOrAnd(query,atLeastOneExpression);
+		query = query + 'end_time <= '$req.body[end_time]'';
+	}
+	if(req.body['type_class'] !== '') {
+		dealWithWhereOrAnd(query,atLeastOneExpression);
+		query = query + 'type_class ='$req.body['type_class']'';
+	}
+	if(req.body['price'] !== '') {
+		dealWithWhereOrAnd(query,atLeastOneExpression);
+		query = query + 'price <='$req.body['price']'';
+	}
+};
+
+function dealWithWhereOrAnd(query, atLeastOneExpression) {
+	if(!atLeastOneExpression) {
+		query = query + ' WHERE ';
+		atLeastOneExpression = true;
+	} else {
+		query = query + ' AND ';
+	}
+}
 
 //GET INSTRUCTORS
 app.get('/api/instructors*', function(req,res){

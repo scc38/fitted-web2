@@ -735,13 +735,31 @@ app.get('/api/classes*', function(req, res){
 	password: config.db.password,
 	database: config.db.database
 	});
+
 	connection.connect();
+
+	var classes = {};
 
 	//look up class objects – where I am little confused
 	connection.query(query, function(err, row, fields){
+		connection.end();
 		if(!err){
 			//success
 			res.send('success');
+
+			for(var i = 0; i < row.length; i++){
+				try{
+					//makes a single class with id and name
+					var one_class = {
+						id: row[i]['id'],
+						name: row[i]['name'],
+					}
+					classes[i] = one_class;
+				} catch(err){
+					console.log(err);
+				}
+			}
+
 		}
 		else {
 			console.log(err);
@@ -749,11 +767,8 @@ app.get('/api/classes*', function(req, res){
 		}
 	});
 
-	//iterate through class objects and look up instructor name
+	res.json(classes);
 
-	var classes = {};
-
-	res.json(class_obj);
 });
 
 function parseClass(req, query){

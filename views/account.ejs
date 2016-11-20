@@ -119,10 +119,17 @@ $(document).ready(function(){
 		<% } else { %>
 		<div class="footer-bar-cell">
 		<% } %>
-			<a href="/addclass"><div class="footer-bar-btn">
-			<i class="fa fa-plus" aria-hidden="true"></i><br>
-				add class
-			</div></a>
+			<%if (isInstructor >= 1) { %>
+				<a href="/addclass"><div class="footer-bar-btn">
+				<i class="fa fa-plus" aria-hidden="true"></i><br>
+					add class
+				</div></a>
+			<% } else { %>
+				<a href="/history"><div class="footer-bar-btn">
+				<i class="fa fa-history" aria-hidden="true"></i><br>
+					history
+				</div></a>
+			<% } %>
 		</div>
 		<%if (footer == "profile"){ %>
 		<div class="footer-bar-cell footer-bar-cell-selected">

@@ -431,6 +431,14 @@ app.post('/post/previewclass', ensureAuthenticated, function(req, res){
 
 });*/
 
+app.get('/history', ensureAuthenticated, function(req, res){
+	res.render("account", {
+						'app_version': pjson.version, 
+						'page': 'history.ejs',
+						'isInstructor': req.user.isInstructor,
+						'footer': 'addclass',
+					});
+});
 
 
 app.get('/register', ensureAuthenticated, function(req, res){
@@ -736,7 +744,7 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 	host: config.db.host,
 	user: config.db.username,
 	password: config.db.password,
-	database: config.db.database
+	database: config.db.database,
 	});
 	connection.connect();
 
@@ -761,8 +769,34 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 */
 app.post('/post/createclass', ensureAuthenticated, function(req, res){
 	var class_data = req.body;
-	console.log(class_data);
-	res.send('success');
+
+	var class_type = parseInt(class_data.type);
+	var class_length = parseInt(class_data.length);
+	var class_price = parseFloat(class_data.price);
+	var class_students = parseInt(class_data.students);
+
+	var test_time = '00:00:00';
+
+	var connection = mysql.createConnection({
+		host: config.db.host,
+		user: config.db.username,
+		password: config.db.password,
+		database: config.db.database,
+	});
+	connection.connect();
+	var query = `INSERT INTO classes 
+		(instructor_id, type_class, length_class, start_time, price, max_students, title, description, location) 
+		VALUES('${req.user.db_id}', '${class_type}', '${class_length}', '${test_time}', '${class_price}', '${class_students}', '${class_data.title}', '${class_data.description}', '${class_data.location}') `;
+
+	connection.query(query, function(err, rows){
+		connection.end();
+		if(!err){
+			res.send('success');
+		}
+		else {
+			res.send(err);
+		}
+	})
 });
 
 /*
@@ -773,7 +807,6 @@ app.post('/post/updateclass', ensureAuthenticated, function(req, res){
 	console.log(class_data);
 	res.send('update class');
 });
-
 
 
 app.get('/saveprofilecomplete', ensureAuthenticated, function(req, res){

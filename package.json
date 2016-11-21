@@ -3,7 +3,7 @@
     "node": "6.2.2"
   },
   "name": "fitted-web",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "web prototype for FITTED",
   "main": "server.js",
   "scripts": {

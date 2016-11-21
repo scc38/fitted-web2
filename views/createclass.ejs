@@ -96,30 +96,7 @@ Sarah P. Duke Garden
 	</div>
 
 	<div id="pg3" style="background-color: #FFF;">
-		<!--<div align="center">
-			Class type
-			<p>Class Title</p>
-			Date to be determined
-		</div>
-		<div class="card">
-			<div class="title" align='center'>Instructor</div>
-			Learn More button
-		</div>
-		<div class="card">
-			<div class="title" align="center">Class Description</div>
-		</div>
-		<div class="card">
-			<div class="title" align="center">Class Location</div>
-			Address
-		</div>
-
-		<div align="center">
-			<button class="bottom-btn" style='pointer-events: none; opacity: .4;'>
-				Reserve for $15.00
-			</button>
-		</div>
-		<div class="divider-15"></div>
-		<div class="divider-15"></div>-->
+		
 	</div>
 </div>
 
@@ -298,7 +275,7 @@ function submitData(){
 			contentType: "application/json",
 			success: function(data){
 				$('loader').addClass('hide-loader');
-				window.location.replace('/addclass');
+				window.location.replace('/scheduleclass');
 			}
 		});
 }

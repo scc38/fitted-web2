@@ -213,17 +213,58 @@ app.get('/login', function(req, res){
 /*
 * Main app
 */
-app.get('/search*', ensureAuthenticated, function(req, res){
+app.get('/search*', ensureAuthenticated, function(req, res){ 
+//needs to be rewritten, this is just a base
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
-			//user is confirmed
-			res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'search.ejs', 
-				'footer': 'dashboard-search',
-				'isInstructor': req.user.isInstructor
+
+			var connection = mysql.createConnection({
+				host: config.db.host,
+				user: config.db.username,
+				password: config.db.password,
+				database: config.db.database,
 			});
+
+			var query = "SELECT * FROM classes";
+
+			connection.connect();
+
+			connection.query(query, function(err, rows){
+				var classes, users;
+
+				if(!err){
+					classes = rows;
+					connection.query(`SELECT id, display_name FROM users`, function(err, rows){
+						connection.end();
+						if(!err){
+							users = rows;
+
+							res.render("account", {
+							'app_version': pjson.version, 
+							'page': 'search.ejs', 
+							'footer': 'dashboard-search',
+							'isInstructor': req.user.isInstructor,
+							'classes': classes,
+							'users': rows
+							});
+						}
+
+					});
+				}
+				else {
+					connection.end();
+					res.render("account", {
+					'app_version': pjson.version, 
+					'page': 'search.ejs', 
+					'footer': 'dashboard-search',
+					'isInstructor': req.user.isInstructor,
+					'classes': classes,
+					'users': rows
+					});
+				}
+			});
+
 		}
 		else {
 			//user is not confirmed
@@ -258,13 +299,47 @@ app.get('/upcoming*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
-			//user is confirmed
-			res.render("account", {
+			//user is confirmed, get classes
+
+
+			/*res.render("account", {
 				'app_version': pjson.version, 
 				'page': 'upcoming.ejs', 
 				'footer': 'upcoming',
 				'isInstructor': req.user.isInstructor
+			});*/
+
+			var connection = mysql.createConnection({
+				host: config.db.host,
+				user: config.db.username,
+				password: config.db.password,
+				database: config.db.database
 			});
+
+			var query = `SELECT * FROM classes WHERE instructor_id = '${req.user.db_id}'`;
+
+			connection.connect();
+
+			connection.query(query, function(err, rows){
+				connection.end();
+				hasClasses = false;
+				if(!err){
+					//console.log(rows);
+					if(rows.length > 0) hasClasses = true;
+				}
+				else {
+					//console.log(err);
+				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'upcoming.ejs', 
+				'footer': 'upcoming',
+				'isInstructor': req.user.isInstructor,
+				'hasClasses': hasClasses
+				});
+			})
+
 		}
 		else {
 			//user is not confirmed
@@ -291,33 +366,6 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 		}
 	});
 });
-
-
-/*
-*	user schedule
-*/
-/*app.get('/schedule', ensureAuthenticated, function(req, res){
-
-	checkConfirmed(req.user.db_id, function(returnVal){
-		if(returnVal >= 1){
-			res.render("schedule", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
-		}
-		else {
-			//user is not confirmed
-			res.redirect('/register');
-		}
-	});
-
-});*/
-
-/*
-*	payment- implement BrainTree
-*	https://developers.braintreepayments.com/start/hello-client/javascript/v3
-*/
-/*app.get('/payment*', ensureAuthenticated, function(req, res){
-	res.render('payment', {'app_version': pjson.version});
-});*/
-
 
 /*
 *	user profile
@@ -369,6 +417,58 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 /*
 * Instructor only
 */
+
+/*
+*	Schedule class
+*/
+
+app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			//get all classes associated with user
+
+			var connection = mysql.createConnection({
+			host: config.db.host,
+			user: config.db.username,
+			password: config.db.password,
+			database: config.db.database
+			});
+
+			var query = `SELECT id, title, length_class FROM classes WHERE instructor_id = '${req.user.db_id}'`;
+
+			connection.connect();
+			connection.query(query, function(err, rows){
+				connection.end();
+				var classes;
+				if(!err){
+					classes = rows;
+					console.log(classes);
+				}
+				else {
+					classes = err;
+				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'schedule_class.ejs', 
+				'footer': 'upcoming',
+				'isInstructor': req.user.isInstructor,
+				'classes': classes
+				});
+
+			});
+
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
+
 
 /*
 *	Create class
@@ -763,7 +863,6 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 	});
 });
 
-
 /*
 * create a class
 */
@@ -807,40 +906,6 @@ app.post('/post/updateclass', ensureAuthenticated, function(req, res){
 	console.log(class_data);
 	res.send('update class');
 });
-
-
-app.get('/saveprofilecomplete', ensureAuthenticated, function(req, res){
-
-});
-
-app.get('/getabout', ensureAuthenticated, function(req, res){
-	res.render("account/about", {'app_version': pjson.version});
-});
-
-app.get('/getclasshistory', ensureAuthenticated, function(req, res){
-	res.render("account/class_history", {'app_version': pjson.version});
-});
-
-app.get('/getclasses', ensureAuthenticated, function(req, res){
-	res.render("account/upcoming_classes", {'app_version': pjson.version});
-});
-
-app.get('/getfriendscalendar', ensureAuthenticated, function(req, res){
-	res.render("account/friends_calendar", {'app_version': pjson.version});
-});
-
-app.get('/gettrainerlist', ensureAuthenticated, function(req, res){
-	res.render("account/trainer_list", {'app_version': pjson.version});
-});
-
-app.get('/getfeedback', ensureAuthenticated, function(req, res){
-	res.render("account/feedback", {'app_version': pjson.version});
-});
-
-app.get('/getinstructor', ensureAuthenticated, function(req, res){
-	res.render("account/instructor", {'app_version': pjson.version});
-});
-
 
 //
 

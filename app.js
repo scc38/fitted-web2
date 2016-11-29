@@ -1,13 +1,13 @@
 var express = require('express');
 var path = require('path');
 var config = require('./config');
-var mysql = require('mysql');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var async = require('async');
 var url = require('url');
 
 var pjson = require('./package.json'); //for version number
@@ -18,6 +18,58 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 app.use('/static', express.static('public'));
 app.use(bodyParser.json()); // support json encoded bodies
+
+//
+
+var mysql = require('mysql');
+//pooling
+//https://codeforgeek.com/2015/01/nodejs-mysql-tutorial/
+var pool = mysql.createPool({
+	connectionLimit: config.db.connectionLimit,
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database,
+	debug: false,
+});
+
+//generic query func
+function doQuery(query, callback){
+
+	pool.getConnection( function(err, connection){
+		if(err){
+			//connection failed
+			callback(err);
+			return;
+		}
+		//console.log('connected as id ' + connection.threadId);
+
+		connection.query(query, function(err, row){
+			connection.release();
+
+			if(!err){//success
+				var str = JSON.stringify(row);
+			    row = JSON.parse(str);
+			    var data = row;
+
+				callback(data);
+				return;
+			} else {
+				callback(err);
+				return;
+			}
+
+		});
+
+		connection.on('error', function(err){
+			callback(err); //failed
+		});
+
+	});
+
+}
+
+//
 
 
 //set up Passport session
@@ -353,12 +405,62 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.render("account", {
+			//now grab their current classes if any
+			async.parallel({
+				classes: function(callback){
+					doQuery(`SELECT * FROM classes WHERE instructor_id = ${req.user.db_id}`, function(data){
+						callback(null, data);
+					});
+				},
+				exercise_types: function(callback){
+					doQuery('SELECT * FROM exercise_types', function(data){
+						callback(null, data);
+					});
+				}
+			}, function(err, result){
+				var activeClasses = [];
+				var inactiveClasses = [];
+				for(var i = 0; i < result.classes.length; i++){
+					if(result.classes[i].isActive > 0){
+						activeClasses.push(result.classes[i]);
+					} else {
+						inactiveClasses.push(result.classes[i]);
+					}
+				}
+
+				res.render("account", {
 				'app_version': pjson.version, 
 				'page': 'addclass.ejs', 
 				'footer': 'addclass',
-				'isInstructor': req.user.isInstructor
+				'isInstructor': req.user.isInstructor,
+				'activeClasses': activeClasses,
+				'inactiveClasses': inactiveClasses,
+				'exercise_types': result.exercise_types
+				});
 			});
+
+			/*doQuery(`SELECT * FROM classes WHERE instructor_id = ${req.user.db_id}`, function(data){
+				//sort the classes
+				var activeClasses = [];
+				var inactiveClasses = [];
+				for(var i = 0; i < data.length; i++){
+					if(data[i].isActive > 0){
+						activeClasses.push(data[i]);
+					} else {
+						inactiveClasses.push(data[i]);
+					}
+				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'addclass.ejs', 
+				'footer': 'addclass',
+				'isInstructor': req.user.isInstructor,
+				'activeClasses': activeClasses,
+				'inactiveClasses': inactiveClasses,
+				});
+			});*/
+
 		}
 		else {
 			//user is not confirmed

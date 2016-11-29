@@ -12,6 +12,7 @@
   "author": "sovresat@umich.edu (sarah ovresat)",
   "license": "ISC",
   "dependencies": {
+    "async": "^2.1.4",
     "body-parser": "^1.15.2",
     "cookie-parser": "^1.4.3",
     "ejs": "^2.4.2",

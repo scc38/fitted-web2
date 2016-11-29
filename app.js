@@ -8,6 +8,7 @@ var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var url = require('url');
 
 var pjson = require('./package.json'); //for version number
 
@@ -163,8 +164,9 @@ app.use(passport.session());
 
 app.get('/auth/facebook/callback*', function(req, res, next){
 	//get param page from url
+	var hostname = req.headers.host;
 	var page = req.query.p;
-	var req_url = 'http://localhost:3000/auth/facebook/callback';
+	var req_url = 'http://' + hostname + '/auth/facebook/callback';
 	var redirect_url = '/register';
 	if(page != undefined){
 		req_url += "?p=" + page;
@@ -172,9 +174,11 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 			case 'profile':
 				redirect_url = '/profile';
 				break;
+			case 'dashboard':
+				redirect_url = '/upcoming';
+				break;
 		}
 	}
-
 	passport.authenticate('facebook', {
 		callbackURL: req_url,
 		successRedirect: redirect_url,
@@ -185,8 +189,9 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 
 app.get('/auth/facebook*', function(req, res, next){
 	//get param page from url
+	var hostname = req.headers.host;
 	var page = req.query.p;
-	var req_url = 'http://localhost:3000/auth/facebook/callback';
+	var req_url = 'http://' + hostname + '/auth/facebook/callback';
 	if(page != undefined){
 		req_url += "?p=" + page;
 	}
@@ -208,13 +213,78 @@ app.get('/login', function(req, res){
 /*
 * Main app
 */
+app.get('/search*', ensureAuthenticated, function(req, res){ 
+//needs to be rewritten, this is just a base
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+
+			var connection = mysql.createConnection({
+				host: config.db.host,
+				user: config.db.username,
+				password: config.db.password,
+				database: config.db.database,
+			});
+
+			var query = "SELECT * FROM classes";
+
+			connection.connect();
+
+			connection.query(query, function(err, rows){
+				var classes, users;
+
+				if(!err){
+					classes = rows;
+					connection.query(`SELECT id, display_name FROM users`, function(err, rows){
+						connection.end();
+						if(!err){
+							users = rows;
+
+							res.render("account", {
+							'app_version': pjson.version, 
+							'page': 'search.ejs', 
+							'footer': 'dashboard-search',
+							'isInstructor': req.user.isInstructor,
+							'classes': classes,
+							'users': rows
+							});
+						}
+
+					});
+				}
+				else {
+					connection.end();
+					res.render("account", {
+					'app_version': pjson.version, 
+					'page': 'search.ejs', 
+					'footer': 'dashboard-search',
+					'isInstructor': req.user.isInstructor,
+					'classes': classes,
+					'users': rows
+					});
+				}
+			});
+
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
 
 app.get('/dashboard*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.render("account", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
+			res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'dashboard.ejs', 
+				'footer': 'dashboard-search',
+				'isInstructor': req.user.isInstructor
+			});
 		}
 		else {
 			//user is not confirmed
@@ -225,14 +295,51 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 });
 
 
-/*
-*	user schedule
-*/
-app.get('/schedule', ensureAuthenticated, function(req, res){
+app.get('/upcoming*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
-			res.render("schedule", {'app_version': pjson.version, 'isInstructor': req.user.isInstructor});
+			//user is confirmed, get classes
+
+
+			/*res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'upcoming.ejs', 
+				'footer': 'upcoming',
+				'isInstructor': req.user.isInstructor
+			});*/
+
+			var connection = mysql.createConnection({
+				host: config.db.host,
+				user: config.db.username,
+				password: config.db.password,
+				database: config.db.database
+			});
+
+			var query = `SELECT * FROM classes WHERE instructor_id = '${req.user.db_id}'`;
+
+			connection.connect();
+
+			connection.query(query, function(err, rows){
+				connection.end();
+				hasClasses = false;
+				if(!err){
+					//console.log(rows);
+					if(rows.length > 0) hasClasses = true;
+				}
+				else {
+					//console.log(err);
+				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'upcoming.ejs', 
+				'footer': 'upcoming',
+				'isInstructor': req.user.isInstructor,
+				'hasClasses': hasClasses
+				});
+			})
+
 		}
 		else {
 			//user is not confirmed
@@ -242,14 +349,23 @@ app.get('/schedule', ensureAuthenticated, function(req, res){
 
 });
 
-/*
-*	payment- implement BrainTree
-*	https://developers.braintreepayments.com/start/hello-client/javascript/v3
-*/
-app.get('/payment*', ensureAuthenticated, function(req, res){
-	res.render('payment', {'app_version': pjson.version});
+app.get('/addclass*', ensureAuthenticated, function(req, res){
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'addclass.ejs', 
+				'footer': 'addclass',
+				'isInstructor': req.user.isInstructor
+			});
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
 });
-
 
 /*
 *	user profile
@@ -278,7 +394,15 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 				getClassPreferences(req.user.db_id, function(class_preferences){
 					//user exists. redirect them to main account page.
 					//console.log(class_preferences);
-					res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
+					//res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
+					res.render("account", {
+						'app_version': pjson.version, 
+						'page': 'profile.ejs', 
+						'footer': 'profile',
+						'isInstructor': req.user.isInstructor,
+						'user': row[0],
+						'class_preferences': class_preferences,
+					});
 				});
 			}
 		}
@@ -295,6 +419,58 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 */
 
 /*
+*	Schedule class
+*/
+
+app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
+
+	checkConfirmed(req.user.db_id, function(returnVal){
+		if(returnVal >= 1){
+			//user is confirmed
+			//get all classes associated with user
+
+			var connection = mysql.createConnection({
+			host: config.db.host,
+			user: config.db.username,
+			password: config.db.password,
+			database: config.db.database
+			});
+
+			var query = `SELECT id, title, length_class FROM classes WHERE instructor_id = '${req.user.db_id}'`;
+
+			connection.connect();
+			connection.query(query, function(err, rows){
+				connection.end();
+				var classes;
+				if(!err){
+					classes = rows;
+					console.log(classes);
+				}
+				else {
+					classes = err;
+				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'schedule_class.ejs', 
+				'footer': 'upcoming',
+				'isInstructor': req.user.isInstructor,
+				'classes': classes
+				});
+
+			});
+
+		}
+		else {
+			//user is not confirmed
+			res.redirect('/register');
+		}
+	});
+
+});
+
+
+/*
 *	Create class
 */
 app.get('/createclass*', ensureAuthenticated, function(req, res){
@@ -304,11 +480,17 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 			//user is confirmed, check if is instructor
 			if(req.user.isInstructor >= 1){
 				getClassPreferences(req.user.db_id, function(class_preferences){
-					res.render("create_class", {'app_version': pjson.version,'class_preferences': class_preferences});
+					res.render("account", {
+						'app_version': pjson.version, 
+						'page': 'createclass.ejs', 
+						'footer': 'addclass',
+						'isInstructor': req.user.isInstructor,
+						'class_preferences': class_preferences,
+					});
 				});
 			}
 			else {
-				res.redirect('/dashboard');
+				res.redirect('/upcoming');
 			}
 		}
 		else {
@@ -319,10 +501,17 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 
 });
 
+app.post('/post/previewclass', ensureAuthenticated, function(req, res){
+	var data = req.body;
+	//sql injection check here
+	res.render("class", {'app_version': pjson.version, 'class_data': data});
+});
+
+
 /*
 *	schedule class
 */
-app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
+/*app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -340,8 +529,16 @@ app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
 		}
 	});
 
-});
+});*/
 
+app.get('/history', ensureAuthenticated, function(req, res){
+	res.render("account", {
+						'app_version': pjson.version, 
+						'page': 'history.ejs',
+						'isInstructor': req.user.isInstructor,
+						'footer': 'addclass',
+					});
+});
 
 
 app.get('/register', ensureAuthenticated, function(req, res){
@@ -353,7 +550,7 @@ app.get('/register', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.redirect('/dashboard');
+			res.redirect('/upcoming');
 		}
 		else {
 			//user is not confirmed, update user and confirm them
@@ -366,7 +563,12 @@ app.get('/register', ensureAuthenticated, function(req, res){
 			connection.connect();
 
 			var isRegistered = false;
-			connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
+
+
+			connection.query('SELECT * FROM exercise_types', function(err, row, fields){
+				var exercise_rows = row;
+
+				connection.query('SELECT * FROM users WHERE facebook_id=' + req.user.id, function(err, row, fields){
 				if(!err){
 					if(row.length <= 0){
 						//user does not yet exist, allow them to register
@@ -382,7 +584,7 @@ app.get('/register', ensureAuthenticated, function(req, res){
 						}
 						else {
 							//user is not confirmed. allow them to finish registering first.
-							res.render("register", {'app_version': pjson.version, 'user': req.user});
+							res.render("register", {'app_version': pjson.version, 'user': req.user, 'exercise_types': exercise_rows});
 						}
 					}
 				}
@@ -391,6 +593,8 @@ app.get('/register', ensureAuthenticated, function(req, res){
 				}
 
 				connection.end();
+				});
+
 			});
 		}
 	});
@@ -449,24 +653,44 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	var birthdate = new Date(data.birthday).getMySQL();
 	var location = parseInt(data.location);
 	var isInstructor = data.isInstructor;
+	var description = data.description;
+	var selected_exercises = data.selected_exercises;
+
 	//sql injection vulnerablity-fix this
 	/*var new_user = `UPDATE users SET (reg_date, display_name, email, birthdate, location, confirmed) ` +
 		`VALUES( NOW(), '${display_name}', '${email}', '${birthdate}', '${location}', 1 ) WHERE facebook_id = '${req.user.id}'`*/
 
-	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', isInstructor='${isInstructor}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
+	var new_user = `UPDATE users SET reg_date=NOW(), display_name = '${display_name}', email='${email}', birthdate='${birthdate}', location='${location}', isInstructor='${isInstructor}', description='${description}', confirmed=1 WHERE facebook_id = '${req.user.id}'`;
 
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){
 		if(!err){
-	        res.send('user update success');
+	        //now add regclass prefs
+	        for(var i = 0; i < selected_exercises.length; i++){
+				var query = `INSERT INTO user_class_preferences (user_id, exercise_type_id) VALUES('${req.user.db_id}', '${selected_exercises[i]}')`;
+
+				connection.query(query, function(err, row, fields){
+					
+					if(err) {
+						console.log(err);
+						//res.send('err');
+					}
+					else {
+						//res.send("success");
+					}
+					///res.send('success');
+				});
+			}
+			res.send("success");
+			connection.end();
 		}
 		else {
-			res.send('error updating user');
+			//res.send('error updating user');
 		}
 
 		if(err != null) console.log(err);
 
-		connection.end();
+		//connection.end();
 	});
 });
 
@@ -610,6 +834,7 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 		email = req.body['email']; //gonna need to check email because email has an UNIQUE key
 		birthdate = req.body['birthdate'];
 		isInstructor = parseInt(req.body['isInstructor']);
+		description = req.body['description'];
 	} catch(err){
 		console.log(error);
 	}
@@ -619,11 +844,11 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 	host: config.db.host,
 	user: config.db.username,
 	password: config.db.password,
-	database: config.db.database
+	database: config.db.database,
 	});
 	connection.connect();
 
-	var updateProfileQuery = `UPDATE users SET display_name='${displayName}', email='${email}', birthdate='${birthdate}', isInstructor='${isInstructor}' WHERE id='${req.user.db_id}'`;
+	var updateProfileQuery = `UPDATE users SET display_name='${displayName}', email='${email}', birthdate='${birthdate}', isInstructor='${isInstructor}', description='${description}' WHERE id='${req.user.db_id}'`;
 
 	connection.query(updateProfileQuery, function(err, row, fields){
 		connection.end();
@@ -638,14 +863,39 @@ app.post('/post/saveprofile', ensureAuthenticated, function(req, res){
 	});
 });
 
-
 /*
 * create a class
 */
 app.post('/post/createclass', ensureAuthenticated, function(req, res){
 	var class_data = req.body;
-	console.log(class_data);
-	res.send('success');
+
+	var class_type = parseInt(class_data.type);
+	var class_length = parseInt(class_data.length);
+	var class_price = parseFloat(class_data.price);
+	var class_students = parseInt(class_data.students);
+
+	var test_time = '00:00:00';
+
+	var connection = mysql.createConnection({
+		host: config.db.host,
+		user: config.db.username,
+		password: config.db.password,
+		database: config.db.database,
+	});
+	connection.connect();
+	var query = `INSERT INTO classes 
+		(instructor_id, type_class, length_class, start_time, price, max_students, title, description, location) 
+		VALUES('${req.user.db_id}', '${class_type}', '${class_length}', '${test_time}', '${class_price}', '${class_students}', '${class_data.title}', '${class_data.description}', '${class_data.location}') `;
+
+	connection.query(query, function(err, rows){
+		connection.end();
+		if(!err){
+			res.send('success');
+		}
+		else {
+			res.send(err);
+		}
+	})
 });
 
 /*
@@ -656,41 +906,6 @@ app.post('/post/updateclass', ensureAuthenticated, function(req, res){
 	console.log(class_data);
 	res.send('update class');
 });
-
-
-
-app.get('/saveprofilecomplete', ensureAuthenticated, function(req, res){
-
-});
-
-app.get('/getabout', ensureAuthenticated, function(req, res){
-	res.render("account/about", {'app_version': pjson.version});
-});
-
-app.get('/getclasshistory', ensureAuthenticated, function(req, res){
-	res.render("account/class_history", {'app_version': pjson.version});
-});
-
-app.get('/getclasses', ensureAuthenticated, function(req, res){
-	res.render("account/upcoming_classes", {'app_version': pjson.version});
-});
-
-app.get('/getfriendscalendar', ensureAuthenticated, function(req, res){
-	res.render("account/friends_calendar", {'app_version': pjson.version});
-});
-
-app.get('/gettrainerlist', ensureAuthenticated, function(req, res){
-	res.render("account/trainer_list", {'app_version': pjson.version});
-});
-
-app.get('/getfeedback', ensureAuthenticated, function(req, res){
-	res.render("account/feedback", {'app_version': pjson.version});
-});
-
-app.get('/getinstructor', ensureAuthenticated, function(req, res){
-	res.render("account/instructor", {'app_version': pjson.version});
-});
-
 
 //
 
@@ -704,10 +919,14 @@ app.get('/api/locations*', function(req, res){
 //GET CLASSES
 app.get('/api/classes*', function(req, res){
 	//parse path
+<<<<<<< HEAD
 	//params:start and end time, type_class, maxprice
 
 	var query;
 	parseClass(req, query);
+=======
+	//
+>>>>>>> c0a7f205a4ba891ce5ad53e3548c0b728a389a66
 
 	//basic class object
 	/*var class_obj = {
@@ -727,6 +946,10 @@ app.get('/api/classes*', function(req, res){
 		class_description: '',
 	};*/
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> c0a7f205a4ba891ce5ad53e3548c0b728a389a66
 
 	//connect to database
 	var connection = mysql.createConnection({

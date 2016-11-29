@@ -1,0 +1,213 @@
+<%var json_data = JSON.parse(JSON.stringify(user))%>
+<%var class_data = JSON.parse(JSON.stringify(class_preferences))%>
+<div class="card">
+	<div align="center">
+		<div class="profile-picture"><img class='profile-picture-image'></div>
+	</div>
+	<div class="divider-15"></div>
+	<div>
+		<span class="input-title">Registered <span id="registered_date"></span>
+	</div>
+	<div>
+		<span class="input-title">Display Name</span>
+		<input type="text" class="input-line input-line-max" placeholder="Olivia Culpo" value="<%=user['display_name']%>" id="edit_name">
+	</div>
+	<div class="divider-15"></div>
+	<div>
+		<span class="input-title">Email</span>
+		<input type="text" class="input-line input-line-max" placeholder="olivia.culpo@gmail.com" value="<%=user['email']%>" id="edit_email">
+	</div>
+	<div class="divider-15"></div>
+	<div>
+		<span class="input-title">Location</span>
+		<input type="text" class="input-line input-line-max" value="<%=user['location']%>" id="edit_location">
+	</div>
+	<div class="divider-15"></div>
+
+	<div>
+		<span class="input-title">Birthday</span><br>
+		<div class='display: table; width: 100%;'>
+
+			<div style="display: table-cell; padding-right: 5px;">
+				<select class="select-line" id="reg_bday_mm">
+					<option value="01">January</option>
+					<option value="02">February</option>
+					<option value="03">March</option>
+					<option value="04">April</option>
+					<option value="05">May</option>
+					<option value="06">June</option>
+					<option value="07">July</option>
+					<option value="08">August</option>
+					<option value="09">September</option>
+					<option value="10">October</option>
+					<option value="11">November</option>
+					<option value="12">December</option>
+				</select>
+			</div>
+
+			<div style="display: table-cell; padding-right: 5px; width: 60px;">
+				<input type="text" class="input-line input-line-max" placeholder="01" id="reg_bday_dd"> 
+			</div>
+
+			<div style="display: table-cell;">
+				<select class="select-line" id="reg_bday_yyyy">
+					<% for (var i = 1916; i < (1916+100); i++) { %>
+						<option value="<%-i%>"><%-i %></option>
+					<% } %>
+				</select>
+			</div>
+
+		</div>
+	</div>
+	<div class="divider-15"></div>
+
+	<div>
+		<div class="input-title" style="margin-bottom: 10px;">About Me</div>
+			<div>
+				<textarea 
+					rows=8 
+					placeholder="Type here..." 
+					maxlength="400" 
+					id="description" 
+					onkeyup="updateDescCount()"><%=user['description']%></textarea>
+			</div>
+			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px;" align='left'>
+				<span id="desc_count">0</span> out of 400 characters
+			</div>
+	</div>
+</div>
+
+<div class="card">
+	<span class="input-title">Your fitness specialities</span><br>
+	<div class="divider-15"></div>
+	<div align="center">
+	<%for(var prop in class_data) { %>
+			<%if(class_data[prop]['isActive'] >= 1) { %>
+			<button 
+				class="exercise_btn" 
+				class_id='<%=class_data[prop][`id`]%>' 
+				style="background-image: linear-gradient(-90deg, #404040 50%, #<%=class_data[prop]['color']%> 100%);"
+				>
+				<%=class_data[prop]['name']%>
+			</button>
+			<div class="divider-15"></div>
+		<%}%>
+	<%}%>
+	</div>
+</div>
+
+<div class="card">
+	<div class="i-card"><img src="/static/img/i_creditcard.png"></div>
+	<div align='left'>
+		<div>
+			<span class="input-title">Name on Debit Card</span>
+			<input type="text" class="input-line input-line-max" placeholder="Enter here" id="">
+		</div>
+		<div class="divider-15"></div>
+		<div>
+			<span class="input-title">Card Number</span>
+			<input type="text" class="input-line input-line-max" placeholder="Enter here" id="">
+		</div>
+		<div class="divider-15"></div>
+		<div>
+			<div style="display:inline-block; width: 50%; padding-right: 5px;">
+				<span class="input-title">Expiration Date</span>
+				<input type="text" class="input-line input-line-max" placeholder="Enter here" id=""> 
+			</div><!--
+			--><div style="display: inline-block; width: 50%; padding-left: 5px;">
+				<span class="input-title">CVV Code</span>
+				<input type="text" class="input-line input-line-max" placeholder="Enter here" id=""> 
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card" align="center" id="account-type">
+	<div align="left" class="input-title">Account Type</div>
+	<div class="divider-15"></div>
+	<% if (json_data["isInstructor"] <= 0){ %>
+		<p><button class="select-btn" id='instructor_btn'>Instructor</button></p>
+		<button class="select-btn select-btn-selected">Student</button>
+	<% } else { %>
+		<p><button class="select-btn select-btn-selected" id='instructor_btn'>Instructor</button></p>
+		<button class="select-btn">Student</button>
+	<% } %>
+
+</div>
+
+<div align="center">
+	<button class="bottom-btn" id="save">save changes</button>
+</div>
+
+<script>
+//basic stuff
+$('.header-bar').removeClass('hide');
+$('.header-bar').css('height', '50px');
+$('.header-bar .title').html('Edit Profile');
+
+//profile things
+var reg_date = moment('<%= json_data["reg_date"] %>');
+var birthdate = moment('<%= json_data["birthdate"] %>');
+
+//set registered date
+$("#registered_date").html(reg_date.format("dddd MMMM Do, YYYY"));
+//set last log in date
+
+//set birthdate stuff
+//month
+var month = birthdate.format("MM");
+$("#reg_bday_mm option[value=" + month + "]").attr("selected", "selected");
+
+//day
+$("#reg_bday_dd").val(birthdate.format("DD"));
+
+//year
+var year = birthdate.format("YYYY");
+$("#reg_bday_yyyy option[value=" + year + "]").attr('selected', 'selected');
+
+
+function updateDescCount(){
+	var count = $("#description").val().length;
+	$('#desc_count').html(count);
+}
+updateDescCount();
+
+$('#account-type .select-btn').mouseup(function(){
+	if(!$(this).hasClass('select-btn-selected')){
+		$('#account-type .select-btn').removeClass('select-btn-selected');
+		$(this).addClass('select-btn-selected');
+	}
+});
+
+$("#save").mouseup(function(){
+		//get all info
+		//make date
+		var birthdate = String($("#reg_bday_yyyy").val()) + "-" + String($("#reg_bday_mm").val()) + "-" + String($("#reg_bday_dd").val());
+		var isInstructor = 0;
+		if($("#instructor_btn").hasClass("select-btn-selected")){
+			isInstructor = 1;
+		}
+
+		var save_data = { 
+			"displayName": $('#edit_name').val(),
+			"email": $('#edit_email').val(),
+			"birthdate": birthdate,
+			"isInstructor": isInstructor,
+			"description": $("#description").val(),
+		};
+		
+		$('loader').removeClass('hide-loader');
+
+		//POST it
+		$.ajax({
+			type: "POST",
+			url: "/post/saveprofile",
+			data: JSON.stringify(save_data),
+			contentType: "application/json",
+			complete: function(data){
+				window.location.replace('/auth/facebook?p=profile');
+			}
+		});
+	});
+
+</script>

@@ -1,0 +1,308 @@
+<%var class_data = JSON.parse(JSON.stringify(class_preferences))%>
+
+<div id="createclass_content">
+	<div id="pg1">
+		<div class="card" align="center">
+			<span class='title'>Class Category</span>
+			<div class="divider-15"></div>
+			
+			<%for(var prop in class_data) { %>
+					<%if(class_data[prop]['isActive'] >= 1) { %>
+					<button 
+						class="exercise_btn exercise_btn-deselected" 
+						class_id='<%=class_data[prop][`id`]%>' 
+						style="background-image: linear-gradient(-90deg, #404040 50%, #<%=class_data[prop]['color']%> 100%);"
+						>
+						<%=class_data[prop]['name']%>
+					</button>
+					<div class="divider-15"></div>
+				<%}%>
+			<%}%>
+		</div>
+
+		<div class="card" align="center">
+			<span class='title'>Class Length
+			<div class="subtitle">In minutes</div>
+			</span>
+			<div class="divider-15"></div>
+
+			<div class="large-bubble large-bubble-selected">30</div>
+			<div class="large-bubble">45</div>
+			<div class="large-bubble">60</div>
+			<div class="divider-15"></div>
+			<div class="large-bubble">75</div>
+			<div class="large-bubble">90</div>
+		</div>
+
+		<div class="card" align="center">
+			<span class='title'>Price per student</span><br>
+			<span style='position: relative;'>
+				<span style='position: absolute; left: -2px; font-size: 20px;'>$</span>
+				<input type="text" class="input-line" value="15.00" style="font-size: 24px; width: 80px; text-align: center;" id="class_price" maxlength="5">
+			</span>
+
+			<div class="divider-15"></div>
+
+			<span class='title'>Maximum number of students per class</span><br>
+			<input type="text" class="input-line" value="12" style="font-size: 24px; width: 80px; text-align: center;" id="num_students" maxlength="2">
+		</div>
+	</div>
+
+	<div id="pg2">
+
+		<div class="card" align="center">
+			<span class='title'>Class Title</span>
+			<div class="divider-15"></div>
+			<div>
+				<textarea rows=2 placeholder="Type here (e.g. Olivia's Strength Training in the Park)" maxlength="50" id="class_title" onkeyup="updateCount('#class_title', '#title_count')"></textarea>
+			</div>
+			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px;" align='left'>
+				<span id="title_count">0</span> out of 50 characters
+			</div>
+		</div>
+
+		<div class="card" align="center">
+			<span class='title'>Class Description</span>
+			<div class="divider-15"></div>
+			<div>
+				<textarea rows=8 placeholder="Type here (e.g. Work up a sweat with body-weight exercises and cardio. Bring water and a towel.)" maxlength="400" id="class_description" onkeyup="updateCount('#class_description', '#desc_count')"></textarea>
+			</div>
+			<div style="color: #9B9B9B; font-size: 10px; margin-top: 5px;" align='left'>
+				<span id="desc_count">0</span> out of 400 characters
+			</div>
+		</div>
+
+		<div class="card" align="center" style="padding: 0">
+			<div class="divider-15"></div>
+			<span class='title'>Class Location</span>
+			<div class="divider-15"></div>
+
+			<div id="map" style="height: 180px; width: 100%;"></div>
+			<div class="divider-15"></div>
+
+			<div align="left" style='margin-left: 15px; margin-right: 15px;'>
+				<div class="input-title" style="font-size: 10px;">Type an Address</div>
+				<div>
+				<textarea rows=3 placeholder="Enter Street, City, ZIP" maxlength="250" id="location" style='font-size: 20px;' value="">
+Sarah P. Duke Garden
+420 Anderson Ave. Durham, NC. 
+30307
+				</textarea>
+				</div>
+			</div>
+			<div class="divider-15"></div>
+		</div>
+
+	</div>
+
+	<div id="pg3" style="background-color: #FFF;">
+		
+	</div>
+</div>
+
+<div align="center">
+	<button class="bottom-btn" id="continue" isSubmittable=false>next</button>
+</div>
+
+
+<script>
+//basic stuff
+$('.header-bar').removeClass('hide');
+$('#header-nav').removeClass('hide');
+$('.header-bar .title').html('Create class');
+$('#header-nav').append('<div class="tiny-bubble">1</div>');
+$('#header-nav').append('<div class="tiny-bubble">2</div>');
+$('#header-nav').append('<div class="tiny-bubble">3</div>');
+
+//nav
+$('#createclass_content').slick({
+	arrows: false,
+	adaptiveHeight: true,
+	infinite: false,
+	touchThreshold: 1,
+	waitForAnimate: false,
+});
+
+//content
+var time_length = $('.large-bubble-selected').first().html();
+$(".large-bubble").mouseup(function(){
+	if(!$(this).hasClass('large-bubble-selected')){
+		$('.large-bubble').removeClass('large-bubble-selected');
+		$(this).addClass('large-bubble-selected');
+		time_length = $(this).html();
+	}
+});
+
+var exercise_type;
+$('.exercise_btn').mouseup(function(){
+	if($(this).hasClass('exercise_btn-deselected')){
+		$('.exercise_btn').addClass('exercise_btn-deselected');
+		$(this).removeClass('exercise_btn-deselected');
+		exercise_type = $(this).attr('class_id');
+	}
+});
+
+$('.tiny-bubble').mouseup(function(){
+	new_slide_index = parseInt($(this).html()) - 1;
+	$("#createclass_content").slick('slickGoTo', new_slide_index);
+});
+
+
+/*function updateDescCount(){
+	var count = $("#description").val().length;
+	$('#desc_count').html(count);
+}
+*/
+function updateCount(elem, elem_count){
+	var count = $(elem).val().length;
+	$(elem_count).html(count);
+}
+updateCount('#class_title', '#title_count');
+updateCount('#class_description', '#desc_count');
+
+function updateBubbleNumbers(){
+	var slick_index = $("#createclass_content").slick('slickCurrentSlide')+1;
+	$(".tiny-bubble").removeClass('tiny-bubble-selected');
+	$(".tiny-bubble").each(function(){
+		if(parseInt($(this).html()) == slick_index){
+			$(this).addClass('tiny-bubble-selected');
+		}
+	});
+}
+updateBubbleNumbers();
+
+$('#createclass_content').on('afterChange', function(){
+	updateBubbleNumbers();
+	if($('#createclass_content').slick('slickCurrentSlide') == 1){
+		$('#continue').html('Preview & Schedule');
+		$('#continue').attr('isSubmittable', true);
+	}
+	else if($('#createclass_content').slick('slickCurrentSlide') == 2){
+		$('#continue').html('Save');
+		$('#continue').attr('isSubmittable', true);
+		//make preview
+		updatePreview();
+	}
+	else {
+		$('#continue').html('continue');
+		$('#continue').attr('isSubmittable', false)
+	}
+
+	//
+
+	if($('#createclass_content').slick('slickCurrentSlide') == 2){
+		$('.header-bar .title').html('Preview');
+	}
+	else {
+		$('.header-bar .title').html('Create class');
+	}
+});
+
+$("#continue").mouseup(function(){
+	//save
+	if($('#createclass_content').slick('slickCurrentSlide') == 2 && $('#continue').attr('isSubmittable') == 'true'){
+		submitData();
+	}
+	else{
+		$('#createclass_content').slick('slickNext');
+	}
+});
+
+function getClassData(){
+
+	var class_data = {
+		'type': exercise_type,
+		'length': time_length,
+		'price': $('#class_price').val(),
+		'students': $('#num_students').val(),
+		'title': $('#class_title').val(),
+		'description': $('#class_description').val(),
+		'location': 'location',
+	}
+	return class_data;
+}
+
+function cancelUpdate(err, page){
+	$('loader').addClass('hide-loader');
+	alert(err);
+	$("#createclass_content").slick('slickGoTo', page);
+	updateBubbleNumbers();
+}
+
+function updatePreview(){
+	$('loader').removeClass('hide-loader');
+	var class_data = getClassData();
+
+	if(class_data.type == undefined){
+		cancelUpdate("You didn't select a class category!", 0);
+	}
+	else if(class_data.price == ""){
+		cancelUpdate("You need to set a price!", 0);
+	}
+	else if(class_data.students == ""){
+		cancelUpdate("You need to set a number of students!", 0);
+	}
+	else if(class_data.title == ""){
+		cancelUpdate("You need a title for your class!", 1);
+	}
+	else if(class_data.description == ""){
+		cancelUpdate('You need a description!', 1);
+	}
+	//add location error handling
+	//else {
+		$.ajax({
+			type: "POST",
+			url: '/post/previewclass',
+			data: JSON.stringify(class_data),
+			contentType: "application/json",
+			success: function(data){
+				$("#pg3").html(data);
+				$('#createclass_content').slick('reinit'); //update slick height
+				$('loader').addClass('hide-loader');
+			}
+		});
+	//}
+}
+
+function submitData(){
+	var class_data = getClassData();
+	$('loader').removeClass('hide-loader');
+
+	$.ajax({
+			type: "POST",
+			url: '/post/createclass',
+			data: JSON.stringify(class_data),
+			contentType: "application/json",
+			success: function(data){
+				$('loader').addClass('hide-loader');
+				window.location.replace('/scheduleclass');
+			}
+		});
+}
+
+var map;
+//map
+function initMap() {
+	var piedmont = {lat: 36.1259707, lng: -80.230882};
+	map = new google.maps.Map(document.getElementById('map'), {
+	  zoom: 14,
+	  center: piedmont,
+	  zoomControl: false,
+	  scaleControl: false,
+	  scrollwheel: false,
+	  disableDoubleClickZoom: true,
+	});
+
+	var styledMapType = new google.maps.StyledMapType(
+		[ { "elementType": "geometry", "stylers": [ { "color": "#f5f5f5" } ] }, { "elementType": "labels.icon", "stylers": [ { "visibility": "off" } ] }, { "elementType": "labels.text.fill", "stylers": [ { "color": "#616161" } ] }, { "elementType": "labels.text.stroke", "stylers": [ { "color": "#f5f5f5" } ] }, { "featureType": "administrative.land_parcel", "elementType": "labels", "stylers": [ { "visibility": "off" } ] }, { "featureType": "administrative.land_parcel", "elementType": "labels.text.fill", "stylers": [ { "color": "#bdbdbd" } ] }, { "featureType": "poi", "elementType": "geometry", "stylers": [ { "color": "#eeeeee" } ] }, { "featureType": "poi", "elementType": "labels.text", "stylers": [ { "visibility": "off" } ] }, { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [ { "color": "#757575" } ] }, { "featureType": "poi.business", "stylers": [ { "visibility": "off" } ] }, { "featureType": "poi.park", "elementType": "geometry", "stylers": [ { "color": "#e5e5e5" } ] }, { "featureType": "poi.park", "elementType": "labels.text", "stylers": [ { "visibility": "off" } ] }, { "featureType": "poi.park", "elementType": "labels.text.fill", "stylers": [ { "color": "#9e9e9e" } ] }, { "featureType": "road", "elementType": "geometry", "stylers": [ { "color": "#ffffff" } ] }, { "featureType": "road.arterial", "elementType": "labels.text.fill", "stylers": [ { "color": "#757575" } ] }, { "featureType": "road.highway", "elementType": "geometry", "stylers": [ { "color": "#dadada" } ] }, { "featureType": "road.highway", "elementType": "labels.text.fill", "stylers": [ { "color": "#616161" } ] }, { "featureType": "road.local", "elementType": "labels", "stylers": [ { "visibility": "off" } ] }, { "featureType": "road.local", "elementType": "labels.text.fill", "stylers": [ { "color": "#9e9e9e" } ] }, { "featureType": "transit.line", "elementType": "geometry", "stylers": [ { "color": "#e5e5e5" } ] }, { "featureType": "transit.station", "elementType": "geometry", "stylers": [ { "color": "#eeeeee" } ] }, { "featureType": "water", "elementType": "geometry", "stylers": [ { "color": "#c9c9c9" } ] }, { "featureType": "water", "elementType": "labels.text.fill", "stylers": [ { "color": "#9e9e9e" } ] } ]);
+	map.mapTypes.set('styled_map', styledMapType);
+	map.setMapTypeId('styled_map');
+	var marker = new google.maps.Marker({
+	  position: piedmont,
+	  map: map
+	});
+}
+</script>
+
+<script async defer src ="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7Rdu67ww1V8YOxrLlQkgs_zyr99wXZSs&callback=initMap">
+</script>

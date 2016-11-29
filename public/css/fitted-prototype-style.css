@@ -563,3 +563,21 @@ loader {
 	text-shadow: 0px 2px 100px rgba(0,0,0,0.50);
 	color: #FFF;
 }
+
+/*
+*	scheduling
+*/
+.time-btn {
+	border: 1px solid #CCC;
+	padding: 10px;
+	text-align: left;
+	line-height: 100%;
+	font-size: 16px;
+	margin-bottom: 10px;
+	font-family: 'Montserrat';
+}
+.time-btn-filled {
+	border: 0 !important;
+	background-color: #0680cd;
+	color: #FFF;
+}

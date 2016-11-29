@@ -271,50 +271,43 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 
-			var connection = mysql.createConnection({
-				host: config.db.host,
-				user: config.db.username,
-				password: config.db.password,
-				database: config.db.database,
-			});
-
-			var query = "SELECT * FROM classes";
-
-			connection.connect();
-
-			connection.query(query, function(err, rows){
-				var classes, users;
-
-				if(!err){
-					classes = rows;
-					connection.query(`SELECT id, display_name FROM users`, function(err, rows){
-						connection.end();
-						if(!err){
-							users = rows;
-
-							res.render("account", {
-							'app_version': pjson.version, 
-							'page': 'search.ejs', 
-							'footer': 'dashboard-search',
-							'isInstructor': req.user.isInstructor,
-							'classes': classes,
-							'users': rows
-							});
-						}
-
+			async.parallel({
+				users: function(callback){
+					doQuery(`SELECT * FROM users`, function(data){
+						callback(null, data);
+					});
+				},
+				classes: function(callback){
+					doQuery(`SELECT * FROM classes WHERE instructor_id = ${req.user.db_id}`, function(data){
+						callback(null, data);
+					});
+				},
+				exercise_types: function(callback){
+					doQuery('SELECT * FROM exercise_types', function(data){
+						callback(null, data);
 					});
 				}
-				else {
-					connection.end();
-					res.render("account", {
-					'app_version': pjson.version, 
-					'page': 'search.ejs', 
-					'footer': 'dashboard-search',
-					'isInstructor': req.user.isInstructor,
-					'classes': classes,
-					'users': rows
-					});
+			}, function(err, result){
+				var activeClasses = [];
+				//var inactiveClasses = [];
+				for(var i = 0; i < result.classes.length; i++){
+					if(result.classes[i].isActive > 0){
+						activeClasses.push(result.classes[i]);
+					} else {
+						//inactiveClasses.push(result.classes[i]);
+					}
 				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'search.ejs', 
+				'footer': 'dashboard-search',
+				'isInstructor': req.user.isInstructor,
+				'classes': activeClasses,
+				'exercise_types': result.exercise_types,
+				'users': result.users
+				});
+
 			});
 
 		}
@@ -335,7 +328,8 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 				'app_version': pjson.version, 
 				'page': 'dashboard.ejs', 
 				'footer': 'dashboard-search',
-				'isInstructor': req.user.isInstructor
+				'isInstructor': req.user.isInstructor,
+				'username': req.user.displayName
 			});
 		}
 		else {
@@ -352,15 +346,6 @@ app.get('/upcoming*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed, get classes
-
-
-			/*res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'upcoming.ejs', 
-				'footer': 'upcoming',
-				'isInstructor': req.user.isInstructor
-			});*/
-
 			var connection = mysql.createConnection({
 				host: config.db.host,
 				user: config.db.username,
@@ -437,30 +422,8 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 				'inactiveClasses': inactiveClasses,
 				'exercise_types': result.exercise_types
 				});
+
 			});
-
-			/*doQuery(`SELECT * FROM classes WHERE instructor_id = ${req.user.db_id}`, function(data){
-				//sort the classes
-				var activeClasses = [];
-				var inactiveClasses = [];
-				for(var i = 0; i < data.length; i++){
-					if(data[i].isActive > 0){
-						activeClasses.push(data[i]);
-					} else {
-						inactiveClasses.push(data[i]);
-					}
-				}
-
-				res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'addclass.ejs', 
-				'footer': 'addclass',
-				'isInstructor': req.user.isInstructor,
-				'activeClasses': activeClasses,
-				'inactiveClasses': inactiveClasses,
-				});
-			});*/
-
 		}
 		else {
 			//user is not confirmed

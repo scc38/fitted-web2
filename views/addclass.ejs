@@ -37,7 +37,13 @@
 			</div>
 			<div class="class-card-table">
 				<div style="display: inline-block; margin-right: 20px;">
-					<b>TIME</b><br>
+					<b style="text-transform: uppercase;">
+					<% if(inactiveClasses.date == null ) { %> 
+						Unscheduled
+					<% } else { %>
+						<%= inactiveClasses.start_time %>
+					<% } %>
+					</b><br>
 					<%=inactiveClasses[i].length_class%> min<br>
 					$<%=inactiveClasses[i].price%>
 				</div><!--

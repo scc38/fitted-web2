@@ -918,15 +918,6 @@ app.get('/api/locations*', function(req, res){
 
 //GET CLASSES
 app.get('/api/classes*', function(req, res){
-	//parse path
-<<<<<<< HEAD
-	//params:start and end time, type_class, maxprice
-
-	var query;
-	parseClass(req, query);
-=======
-	//
->>>>>>> c0a7f205a4ba891ce5ad53e3548c0b728a389a66
 
 	//basic class object
 	/*var class_obj = {
@@ -946,10 +937,14 @@ app.get('/api/classes*', function(req, res){
 		class_description: '',
 	};*/
 
-<<<<<<< HEAD
-=======
+	//parse path
+	//params:start and end time, type_class, maxprice
 
->>>>>>> c0a7f205a4ba891ce5ad53e3548c0b728a389a66
+	var query;
+	parseClass(req, query);
+
+	//get number of classes wanted
+	getNumClasses(req, query) //adds LIMIT if asked
 
 	//connect to database
 	var connection = mysql.createConnection({
@@ -976,6 +971,12 @@ app.get('/api/classes*', function(req, res){
 					var one_class = {
 						id: row[i]['id'],
 						name: row[i]['name'],
+						start_time: row[i]['start_time'],
+						length_class: row[i]['length_class'],
+						price: row[i]['price'],
+						description: row[i]['description'],
+						type_class: row[i]['type_class'],
+						instructor_name: row[i]['instructor_name'] 
 					}
 					classes[i] = one_class;
 				} catch(err){
@@ -1003,7 +1004,7 @@ function parseClass(req, query){
 	}
 	if(req.body['end_time'] !== '') {
 		dealWithWhereOrAnd(query,atLeastOneExpression);
-		query = query + 'end_time <= '$req.body[end_time]'';
+		query = query + 'end_time <= '$req.body['end_time']'';
 	}
 	if(req.body['type_class'] !== '') {
 		dealWithWhereOrAnd(query,atLeastOneExpression);
@@ -1021,6 +1022,12 @@ function dealWithWhereOrAnd(query, atLeastOneExpression) {
 		atLeastOneExpression = true;
 	} else {
 		query = query + ' AND ';
+	}
+}
+
+function getNumClasses(req, query) {
+	if(req.body['numClasses'] !== '') {
+		query = query + ' LIMIT '$req.body['numClasses']'';
 	}
 }
 

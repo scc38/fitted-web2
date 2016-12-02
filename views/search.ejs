@@ -1,31 +1,126 @@
-<% if( classes.length > 0) { %>
+<script>
 
-	<% for(var i = 0; i < classes.length; i++){ %>
-		<div class="class-card">
+	var numClassesShown;
 
-			<div class="class-card-inner" align="right">
-				<%= classes[i].start_time %><br>
-				<%= classes[i].length_class %> Min<br>
-				$<%= classes[i].price %>
-			</div>
+	function search(input) {
 
-			<div class="class-card-inner">
-			<span class="input-title" style="font-family: 'Montserrat';"><%= classes[i].title %></span><Br>
-			<% for(var j = 0; j < users.length; j++){ %> 
-				<% if( users[j].id == classes[i].instructor_id) { %>
-					Instructor <%= users[j].display_name %>
-				<% break; } %>	
-			<% } %><br>
-			<%= classes[i].type_class %><br>
-			address here
-			</div><br>
+		var urlString;
+		makeUrlString(input, urlString, numClassesShown); //not 100% sure we need this
 
-			<%= classes[i].description %>
+		$.ajax({
+			//url: '/api/classes?foo=bar&numClasses=10',
+			url: urlString,
+			success: function(data){
+				//add the new classes, make a new card for each new class
+				if(data.length <== 0) {
+					displayNoClassMessage();
+				} else {
+					displayNewClasses(data);
+				}
+			}
+		});
+
+	}
+
+	function makeUrlString(input, urlString) {
+		urlString = '/api/classes?';
+		if(numClassesShown === null) {
+			numClassesShown = 0;
+		}
+		var numClassesWanted = numClassesShown + 10;
+		urlString = urlString + 'numClasses=' + numClassesWanted;
+		if(input.body['start_time'] !== '') {
+			urlString = urlString + '&start_time='$input.body['start_time']'';
+		}
+		if(input.body['end_time'] !== '') {
+			urlString = urlString + '&end_time='$input.body['end_time']'';
+		}
+		if(input.body['type_class'] !== '') {
+			urlString = urlString + '&type_class='$input.body['type_class']'';
+		}
+		if(input.body['price'] !== '') {
+			urlString = urlString + '&price='$input.body['price']'';
+		}
+	}
+
+	function displayNoClassMessage() {
+		<div class="class-card" align="center">
+			There are no classes.
 		</div>
-	<% } %>
+	}
+
+	//some of the ejs formatting might be incorrect
+	function displayNewClasses(data) {
+		if(data.length === numClassesShown) {
+			<div class="class-card" align="center">
+				There are no more classes to show.
+			</div>
+		} else {
+			for(var i=numClassesShown; i<data.length; i++) {
+				<div class="class-card">
+
+					<div class="class-card-inner" align="right">
+						<%= data[i].start_time %><br>
+						<%= data[i].length_class %> Min<br>
+						$<%= data[i].price %>
+					</div>
+
+					<div class="class-card-inner">
+						<span class="input-title" style="font-family: 'Montserrat';"><%= classes[i].title %></span><Br>
+						
+							Instructor <%= data[i]].instructor_name%>
+							
+						<%= data[i].type_class %><br>
+						address here
+					</div><br>
+
+					<%= data[i].description %>
+				</div>
+			}
+
+			numClassesShown = data.length;
+
+		}
+	}
+
+
+</script>
+
+
+
+
+
+
+
+
+// <% if( classes.length > 0) { %>
+
+// 	<% for(var i = 0; i < classes.length; i++){ %>
+// 		<div class="class-card">
+
+// 			<div class="class-card-inner" align="right">
+// 				<%= classes[i].start_time %><br>
+// 				<%= classes[i].length_class %> Min<br>
+// 				$<%= classes[i].price %>
+// 			</div>
+
+// 			<div class="class-card-inner">
+// 			<span class="input-title" style="font-family: 'Montserrat';"><%= classes[i].title %></span><Br>
+// 			<% for(var j = 0; j < users.length; j++){ %> 
+// 				<% if( users[j].id == classes[i].instructor_id) { %>
+// 					Instructor <%= users[j].display_name %>
+// 				<% break; } %>	
+// 			<% } %><br>
+// 			<%= classes[i].type_class %><br>
+// 			address here
+// 			</div><br>
+
+// 			<%= classes[i].description %>
+// 		</div>
+// 	<% } %>
 	
-<% } else { %>
-<div class="class-card" align="center">
-	There are no classes.
-</div>
-<% } %>
+// <% } else { %>
+// <div class="class-card" align="center">
+// 	There are no classes.
+// </div>
+// <% } %>

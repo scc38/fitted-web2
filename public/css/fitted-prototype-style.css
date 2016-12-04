@@ -581,3 +581,8 @@ loader {
 	background-color: #0680cd;
 	color: #FFF;
 }
+.time-inp {
+	border: 0;
+	border-bottom: 1px solid #CCC;
+	width: 40px;
+}

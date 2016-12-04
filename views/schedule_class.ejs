@@ -3,7 +3,7 @@
 	Select a class
 	</div>
 
-	<select class="select-box" id="class_selected">
+	<select class="select-box" id="class_selected" onchange="updateClass()">
 	<% for(var i = 0; i < classes.length; i++) { %>
 	<option value="<%=classes[i].id%>"><%=classes[i].title%> (<%= classes[i].length_class%> min)</option>
 	<%} %>
@@ -23,18 +23,32 @@
 
 <div class="card" align="center">
 	<div class="title">
-		Select a time on this day
+		Dates
 	</div>
-	<i class="fa fa-caret-left" aria-hidden="true"></i>&nbsp;
+
+	<div id="class_times">
+		<div style="font-size: 18px; margin: 20px;" id="timeless_class">This class has no times yet!</div>
+	</div>
+
+	<div class='time-btn time-btn-filled hide' id="filled_class_time">
+		<span class="show_time" style="margin-right: 10px;"></span>
+		<span class='repeating hide'>Repeating (every <span class="repeating_day"></span>)</span>
+		<span style='float: right;' class='hide'><i class="fa fa-times" aria-hidden="true"></i></span>
+	</div>
+
+	<div class='time-btn hide' id="unfilled_class_time">
+		<input type="text" class="time timepicker" style="width: 80px;"/>
+		<span class="show_time" style="margin-right: 10px;"></span>
+		<span class='repeating'>&nbsp;<input type="checkbox" name="repeating" value="repeating"> Repeating</span>
+		<span style='float: right;' class='hide'><i class="fa fa-times" aria-hidden="true"></i></span>
+	</div>
+
+	<span style="font-size:24px; float: left; position: relative; bottom: 5px;" onmouseup="prevDay()"><i class="fa fa-caret-left" aria-hidden="true"></i></span>&nbsp;
 	<span class='input-title' style="font-family: 'Montserrat'; font-size: 16px;" id="select-time-date"></span>
-	&nbsp;<i class="fa fa-caret-right" aria-hidden="true"></i>
+	&nbsp;<span style="font-size:24px; float:right; position: relative; bottom: 5px;" onmouseup="nextDay()"><i class="fa fa-caret-right" aria-hidden="true"></i></span>
 	<div class="divider-15"></div>
 
-	<div class='time-btn time-btn-filled'>
-		<span style="margin-right: 10px;">TIME</span>
-		<span>Repeating (every Wed)</span>
-	</div>
-	<div class='time-btn' style="text-align: center; text-transform: uppercase;">Add Time</div>
+	<div class='time-btn' style="text-align: center; text-transform: uppercase;" onmouseup="addTime()">Add Time</div>
 
 	<div class="divider-15"></div>
 
@@ -44,7 +58,7 @@
 </div>
 
 <div align="center">
-	<button class="bottom-btn" id="continue" isSubmittable=false>SAVE SCHEDULE</button>
+	<button class="bottom-btn" id="continue" onmouseup='saveSchedule()'>SAVE SCHEDULE</button>
 </div>
 
 <script>
@@ -63,10 +77,127 @@ $('#calendar').fullCalendar({
 	},
 });
 
+var current_moment = moment();
+
 //update select time date
 function updateSelectTime(date){
+	current_moment = date;
+	$("#calendar").fullCalendar( 'gotoDate', current_moment);
 	var newDate = moment(date).format('dddd, MMMM D');
 	$("#select-time-date").html(newDate);
 }
 updateSelectTime($("#calendar").fullCalendar('getDate'));
+
+function nextDay(){
+	current_moment.add(1, 'days');
+	updateSelectTime(current_moment);
+}
+function prevDay(){
+	current_moment.subtract(1, 'days');
+	updateSelectTime(current_moment);
+}
+var newTimes = [];
+var selected_id;
+
+function addTime(){
+	newTimes.push(current_moment);
+	var times_len = newTimes.length.toString();
+	var time_moment = current_moment.format("YYYY-MM-DD");
+	$("#unfilled_class_time").clone().removeClass('hide').attr('date', time_moment).attr('id', 'newTime_' + times_len).appendTo("#class_times");
+	$("#newTime_" + times_len + " > .show_time").html(moment(current_moment).format('ddd MMM D YY'));
+	$("#newTime_" + times_len + " > .timepicker").timepicker();
+	var d = new Date();
+	d.setHours(0);
+	d.setMinutes(0);
+	$("#newTime_" + times_len + " > .timepicker").timepicker('setTime', d);
+}
+
+//attempt to get currently selected class data from server
+function updateClass(){
+	selected_id = $('#class_selected').val();
+	$('loader').removeClass('hide-loader');
+	$.ajax({
+		type: "POST",
+		url: "/post/getclass?id=" + $('#class_selected').val(),
+		contentType: "application/json",
+		complete: function(jqXHR){
+			newTimes = []; //clear new times
+
+			var responseText = jQuery.parseJSON(jqXHR.responseText);
+			//console.log(responseText.class);
+
+			$('#class_times').html('');
+
+			if(responseText.class_times.length < 1){
+				$("#class_times").html(`<div style="font-size: 18px; margin: 20px;" id="timeless_class">This class has no times yet!</span>`);
+			} else {
+				for(var i = 0; i < responseText.class_times.length; i++){
+					$("#filled_class_time").clone().removeClass('hide').attr('id', 'classTime_' + i).appendTo('#class_times');
+					var date = new Date(responseText.class_times[i].date);
+					var formatted_date = moment(date).format('h:mm a ddd MMM D YY');
+					$("#classTime_" + i + " > .show_time").attr('this_date', responseText.class_times[i].date).html(formatted_date);
+
+					if(responseText.class_times[i].isRepeating > 0){
+						$("#classTime_" + i + " > .repeating").removeClass('hide');
+						$("#classTime_" + i + " > .repeating > .repeating_day").html(moment(date).format('ddd'));
+					}
+				}
+			}
+
+			$('loader').addClass('hide-loader');
+		}
+	});
+}
+updateClass();
+
+function getMomentFromTimeString(str) {
+  var t = moment(str, 'HH:mm A');
+  // Now t is a moment.js object of today's date at the time given in str
+
+  if (t.get('hour') < 22) // If it's before 9 pm
+    t.add('d', 1); // Add 1 day, so that t is tomorrow's date at the same time
+
+  return t;
+}
+
+function saveSchedule(){
+
+	new_classes = [];
+
+	for(var i = 0; i < newTimes.length; i++){
+		var elem = '#newTime_' + (i+1).toString();
+		//console.log(elem);
+		var timepicker_time = $(elem + " > .timepicker").val();
+		var timepicker_time = getMomentFromTimeString(timepicker_time);
+		var this_date = $(elem).attr('date');
+		var isRepeating = $(elem + ` input[type='checkbox']`).is(':checked');
+
+		var new_class = {
+			time: this_date + " " + moment(timepicker_time).format("HH:mm:00"),
+			isRepeating: isRepeating
+		}
+
+		new_classes.push(new_class)
+	}
+
+	var save_data = { 
+		id: selected_id,
+		new_classes: new_classes
+	};
+	
+	$('loader').removeClass('hide-loader');
+
+	//POST it
+	$.ajax({
+		type: "POST",
+		url: "/post/saveschedule",
+		data: JSON.stringify(save_data),
+		contentType: "application/json",
+		complete: function(data){
+			window.location.replace('/scheduleclass');
+		}
+	});
+
+}
+
 </script>

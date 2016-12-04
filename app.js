@@ -972,6 +972,58 @@ app.post('/post/updateclass', ensureAuthenticated, function(req, res){
 	res.send('update class');
 });
 
+//get a single class
+app.post('/post/getclass*', ensureAuthenticated, function(req,res){
+	if(req.query.id) {
+		//get info from database.
+		async.parallel({
+			class: function(callback){
+				doQuery(`SELECT * FROM classes WHERE id = ${req.query.id}`, function(data){
+					callback(null, data);
+				});
+			},
+			class_times: function(callback){
+				doQuery(`SELECT * FROM class_times WHERE class_id = ${req.query.id}`, function(data){
+					callback(null, data);
+				});
+			}
+		}, function(err, result){
+
+			res.json({
+				class: result.class[0],
+				class_times: result.class_times
+			});
+
+		});
+	}
+	else {
+		//todo: need to throw error
+		res.send('getclass s');
+	}
+});
+
+app.post('/post/saveschedule', ensureAuthenticated, function(req, res){
+	//console.log(req.body);
+
+	//check input
+	var class_id = req.body.id;
+
+	for(var i = 0; i < req.body.new_classes.length; i++){
+		var timedate = req.body.new_classes[i].time;
+		var isRepeating = req.body.new_classes[i].isRepeating;
+		if(isRepeating == true) { 
+			isRepeating = 1
+		} else {
+			isRepeating = 0;
+		}
+		doQuery(`INSERT INTO class_times (class_id, date, isRepeating) VALUES('${class_id}', '${timedate}', '${isRepeating}')`, function(){
+			//console.log('insert success');
+		});
+	}
+
+	res.send('success');
+});
+
 //
 
 //api routes

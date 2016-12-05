@@ -134,7 +134,7 @@ function updateClass(){
 				for(var i = 0; i < responseText.class_times.length; i++){
 					$("#filled_class_time").clone().removeClass('hide').attr('id', 'classTime_' + i).appendTo('#class_times');
 					var date = new Date(responseText.class_times[i].date);
-					var formatted_date = moment(date).format('h:mm a ddd MMM D YY');
+					var formatted_date = moment(date).format('h:mm a ddd MMM D YYYY');
 					$("#classTime_" + i + " > .show_time").attr('this_date', responseText.class_times[i].date).html(formatted_date);
 
 					if(responseText.class_times[i].isRepeating > 0){
@@ -166,7 +166,7 @@ function saveSchedule(){
 
 	for(var i = 0; i < newTimes.length; i++){
 		var elem = '#newTime_' + (i+1).toString();
-		//console.log(elem);
+
 		var timepicker_time = $(elem + " > .timepicker").val();
 		var timepicker_time = getMomentFromTimeString(timepicker_time);
 		var this_date = $(elem).attr('date');

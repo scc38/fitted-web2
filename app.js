@@ -401,6 +401,11 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 					doQuery('SELECT * FROM exercise_types', function(data){
 						callback(null, data);
 					});
+				},
+				class_times: function(callback){
+					doQuery(`SELECT * FROM class_times WHERE instructor_id = ${req.user.db_id}`, function(data){
+						callback(null, data);
+					});
 				}
 			}, function(err, result){
 				var activeClasses = [];
@@ -413,12 +418,27 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 					}
 				}
 
+				var new_activeClasses = [];
+				for(var j = 0; j < result.class_times.length; j++){
+					var class_id = result.class_times[j].class_id;
+
+					for(var k = 0; k < activeClasses.length; k++){
+					 	
+					 	if(activeClasses[k].id == class_id){
+					 		new_activeClasses.push(activeClasses[k]);
+					 		activeClasses[k].date = result.class_times[j].date;
+					 		activeClasses[k].isRepeating = result.class_times[j].isRepeating;
+					 		break;
+					 	}
+					}
+				}
+
 				res.render("account", {
 				'app_version': pjson.version, 
 				'page': 'addclass.ejs', 
 				'footer': 'addclass',
 				'isInstructor': req.user.isInstructor,
-				'activeClasses': activeClasses,
+				'activeClasses': new_activeClasses,
 				'inactiveClasses': inactiveClasses,
 				'exercise_types': result.exercise_types
 				});
@@ -1016,8 +1036,11 @@ app.post('/post/saveschedule', ensureAuthenticated, function(req, res){
 		} else {
 			isRepeating = 0;
 		}
-		doQuery(`INSERT INTO class_times (class_id, date, isRepeating) VALUES('${class_id}', '${timedate}', '${isRepeating}')`, function(){
-			//console.log('insert success');
+		doQuery(`INSERT INTO class_times (class_id, date, isRepeating, instructor_id) VALUES('${class_id}', '${timedate}', '${isRepeating}', '${req.user.db_id}')`, function(){
+			//set class to be active now
+			doQuery(`UPDATE classes SET isActive=1 WHERE id = '${class_id}'`, function(){
+				//console.log('insert success');
+			});
 		});
 	}
 

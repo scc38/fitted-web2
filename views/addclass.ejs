@@ -9,9 +9,36 @@
 	<span class='title'>Scheduled and searchable by students.</span>
 	<div class="divider-15"></div>
 	<% if(activeClasses.length > 0) { %>
+		<% for(var i = 0; i < activeClasses.length; i++) { %>
 		<div class="class-card">
-			active class card here
-		</div>
+			<div class="class-card-header">
+				<div style="display: inline-block; width: 50%;">
+					<%= activeClasses[i].max_students %> slots
+				</div><!--
+				--><div style="display: inline-block; width: 50%; text-align: right;">
+					More Info &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i>
+				</div>
+			</div>
+			<div class="class-card-table">
+				<div style="display: inline-block; margin-right: 20px;">
+					<b style="text-transform: uppercase;">
+					<% if(activeClasses[i].date ) { %> 
+						<span class="activeTime"><%= activeClasses[i].date %></span>
+					<% } else { %>
+						unscheduled
+					<% } %>
+					</b><br>
+					<%=activeClasses[i].length_class%> min<br>
+					$<%=activeClasses[i].price%>
+				</div><!--
+				--><div style="display: inline-block;">
+					<b><%=activeClasses[i].title%></b><br>
+					<span style="text-transform: capitalize;"><%=exercise_types[activeClasses[i].type_class].name%></span><br>
+					<i class="fa fa-map-marker" aria-hidden="true"></i> Location
+				</div>
+			</div>
+		</div><br>
+		<% } %>
 	<% } else  { %>
 		<div class="none-class-card">
 			None
@@ -62,3 +89,11 @@
 		</div>
 	<% } %>
 </div>
+
+<script>
+$('.activeTime').each(function(i, obj){
+	var date = $(obj).html();
+	$(obj).html(moment(date).format('hh:mma ddd MMMM Do'))
+	//console.log($(obj).html())
+});
+</script>

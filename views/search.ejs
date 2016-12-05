@@ -1,31 +1,54 @@
-<% if( classes.length > 0) { %>
-
-	<% for(var i = 0; i < classes.length; i++){ %>
-		<div class="class-card">
-
-			<div class="class-card-inner" align="right">
-				<%= classes[i].start_time %><br>
-				<%= classes[i].length_class %> Min<br>
-				$<%= classes[i].price %>
+<% if(activeClasses.length > 0) { %>
+	<% for(var i = 0; i < activeClasses.length; i++) { %>
+	<div class="class-card" style="margin: 10px; border-radius: 3px;">
+		<div class="class-card-header">
+			<div style="display: inline-block; width: 50%;">
+				0 / <%= activeClasses[i].max_students %> slots
+			</div><!--
+			--><div style="display: inline-block; width: 50%; text-align: right;">
+				More Info &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i>
 			</div>
-
-			<div class="class-card-inner">
-			<span class="input-title" style="font-family: 'Montserrat';"><%= classes[i].title %></span><Br>
-			<% for(var j = 0; j < users.length; j++){ %> 
-				<% if( users[j].id == classes[i].instructor_id) { %>
+		</div>
+		<div class="class-card-table">
+			<div style="display: inline-block; margin-right: 20px; vertical-align: top;">
+				<b style="text-transform: uppercase;">
+				<% if(activeClasses[i].date ) { %> 
+					<span class="activeTime"><%= activeClasses[i].date %></span>
+				<% } else { %>
+					unscheduled
+				<% } %>
+				</b><br>
+				<%=activeClasses[i].length_class%> min<br>
+				$<%=activeClasses[i].price%>
+			</div><!--
+			--><div style="display: inline-block; vertical-align: top;">
+				<b><%=activeClasses[i].title%></b><br>
+				<% for(var j = 0; j < users.length; j++){ %> 
+				<% if( users[j].id == activeClasses[i].instructor_id) { %>
 					Instructor <%= users[j].display_name %>
 				<% break; } %>	
-			<% } %><br>
-			<%= classes[i].type_class %><br>
-			address here
-			</div><br>
-
-			<%= classes[i].description %>
+				<% } %><br>
+				<span style="text-transform: capitalize;"><%=exercise_types[activeClasses[i].type_class].name%></span><br>
+				<i class="fa fa-map-marker" aria-hidden="true"></i> Location
+			</div>
 		</div>
+	</div><br>
 	<% } %>
-	
-<% } else { %>
-<div class="class-card" align="center">
-	There are no classes.
-</div>
+<% } else  { %>
+	<div class="none-class-card">
+		None
+	</div>
 <% } %>
+
+<script>
+$('.header-bar').removeClass('hide');
+$('.header-bar').css('height', '50px')
+$('.header-bar .title').html('datetime (searching active classes)');
+
+$('.activeTime').each(function(i, obj){
+	var date = $(obj).html();
+	$(obj).html(moment(date).format('hh:mma ddd MMMM Do'));
+});
+
+$('.graphic-triangle').css('opacity', .1);
+</script>

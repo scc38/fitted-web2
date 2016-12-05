@@ -93,7 +93,6 @@
 <script>
 $('.activeTime').each(function(i, obj){
 	var date = $(obj).html();
-	$(obj).html(moment(date).format('hh:mma ddd MMMM Do'))
-	//console.log($(obj).html())
+	$(obj).html(moment(date).format('hh:mma ddd MMMM Do'));
 });
 </script>

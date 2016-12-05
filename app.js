@@ -286,9 +286,15 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 					doQuery('SELECT * FROM exercise_types', function(data){
 						callback(null, data);
 					});
+				},
+				class_times: function(callback){
+					doQuery('SELECT * FROM class_times', function(data){
+						callback(null, data);
+					})
 				}
 			}, function(err, result){
 				var activeClasses = [];
+
 				//var inactiveClasses = [];
 				for(var i = 0; i < result.classes.length; i++){
 					if(result.classes[i].isActive > 0){
@@ -298,12 +304,27 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 					}
 				}
 
+				var new_activeClasses = [];
+				for(var j = 0; j < result.class_times.length; j++){
+					var class_id = result.class_times[j].class_id;
+
+					for(var k = 0; k < activeClasses.length; k++){
+					 	
+					 	if(activeClasses[k].id == class_id){
+					 		new_activeClasses.push(activeClasses[k]);
+					 		activeClasses[k].date = result.class_times[j].date;
+					 		activeClasses[k].isRepeating = result.class_times[j].isRepeating;
+					 		break;
+					 	}
+					}
+				}
+
 				res.render("account", {
 				'app_version': pjson.version, 
 				'page': 'search.ejs', 
 				'footer': 'dashboard-search',
 				'isInstructor': req.user.isInstructor,
-				'classes': activeClasses,
+				'activeClasses': new_activeClasses,
 				'exercise_types': result.exercise_types,
 				'users': result.users
 				});

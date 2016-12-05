@@ -1,0 +1,31 @@
+<% if( classes.length > 0) { %>
+
+	<% for(var i = 0; i < classes.length; i++){ %>
+		<div class="class-card">
+
+			<div class="class-card-inner" align="right">
+				<%= classes[i].start_time %><br>
+				<%= classes[i].length_class %> Min<br>
+				$<%= classes[i].price %>
+			</div>
+
+			<div class="class-card-inner">
+			<span class="input-title" style="font-family: 'Montserrat';"><%= classes[i].title %></span><Br>
+			<% for(var j = 0; j < users.length; j++){ %> 
+				<% if( users[j].id == classes[i].instructor_id) { %>
+					Instructor <%= users[j].display_name %>
+				<% break; } %>	
+			<% } %><br>
+			<%= classes[i].type_class %><br>
+			address here
+			</div><br>
+
+			<%= classes[i].description %>
+		</div>
+	<% } %>
+	
+<% } else { %>
+<div class="class-card" align="center">
+	There are no classes.
+</div>
+<% } %>

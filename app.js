@@ -1,13 +1,13 @@
 var express = require('express');
 var path = require('path');
 var config = require('./config');
-var mysql = require('mysql');
 var session = require('express-session');
 var MySQLStore = require('express-mysql-session')(session);
 var passport = require('passport');
 var FacebookStrategy = require('passport-facebook').Strategy;
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var async = require('async');
 var url = require('url');
 
 var pjson = require('./package.json'); //for version number
@@ -18,6 +18,58 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 app.use('/static', express.static('public'));
 app.use(bodyParser.json()); // support json encoded bodies
+
+//
+
+var mysql = require('mysql');
+//pooling
+//https://codeforgeek.com/2015/01/nodejs-mysql-tutorial/
+var pool = mysql.createPool({
+	connectionLimit: config.db.connectionLimit,
+	host: config.db.host,
+	user: config.db.username,
+	password: config.db.password,
+	database: config.db.database,
+	debug: false,
+});
+
+//generic query func
+function doQuery(query, callback){
+
+	pool.getConnection( function(err, connection){
+		if(err){
+			//connection failed
+			callback(err);
+			return;
+		}
+		//console.log('connected as id ' + connection.threadId);
+
+		connection.query(query, function(err, row){
+			connection.release();
+
+			if(!err){//success
+				var str = JSON.stringify(row);
+			    row = JSON.parse(str);
+			    var data = row;
+
+				callback(data);
+				return;
+			} else {
+				callback(err);
+				return;
+			}
+
+		});
+
+		connection.on('error', function(err){
+			callback(err); //failed
+		});
+
+	});
+
+}
+
+//
 
 
 //set up Passport session
@@ -219,50 +271,64 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 
-			var connection = mysql.createConnection({
-				host: config.db.host,
-				user: config.db.username,
-				password: config.db.password,
-				database: config.db.database,
-			});
-
-			var query = "SELECT * FROM classes";
-
-			connection.connect();
-
-			connection.query(query, function(err, rows){
-				var classes, users;
-
-				if(!err){
-					classes = rows;
-					connection.query(`SELECT id, display_name FROM users`, function(err, rows){
-						connection.end();
-						if(!err){
-							users = rows;
-
-							res.render("account", {
-							'app_version': pjson.version, 
-							'page': 'search.ejs', 
-							'footer': 'dashboard-search',
-							'isInstructor': req.user.isInstructor,
-							'classes': classes,
-							'users': rows
-							});
-						}
-
+			async.parallel({
+				users: function(callback){
+					doQuery(`SELECT * FROM users`, function(data){
+						callback(null, data);
 					});
-				}
-				else {
-					connection.end();
-					res.render("account", {
-					'app_version': pjson.version, 
-					'page': 'search.ejs', 
-					'footer': 'dashboard-search',
-					'isInstructor': req.user.isInstructor,
-					'classes': classes,
-					'users': rows
+				},
+				classes: function(callback){
+					doQuery(`SELECT * FROM classes WHERE instructor_id = ${req.user.db_id}`, function(data){
+						callback(null, data);
 					});
+				},
+				exercise_types: function(callback){
+					doQuery('SELECT * FROM exercise_types', function(data){
+						callback(null, data);
+					});
+				},
+				class_times: function(callback){
+					doQuery('SELECT * FROM class_times', function(data){
+						callback(null, data);
+					})
 				}
+			}, function(err, result){
+				var activeClasses = [];
+
+				//var inactiveClasses = [];
+				for(var i = 0; i < result.classes.length; i++){
+					if(result.classes[i].isActive > 0){
+						activeClasses.push(result.classes[i]);
+					} else {
+						//inactiveClasses.push(result.classes[i]);
+					}
+				}
+
+				var new_activeClasses = [];
+				for(var j = 0; j < result.class_times.length; j++){
+					var class_id = result.class_times[j].class_id;
+
+					for(var k = 0; k < activeClasses.length; k++){
+					 	
+					 	if(activeClasses[k].id == class_id){
+					 		new_activeClasses.push(activeClasses[k]);
+					 		activeClasses[k].date = result.class_times[j].date;
+					 		activeClasses[k].isRepeating = result.class_times[j].isRepeating;
+					 		break;
+					 	}
+					}
+				}
+
+				res.render("account", {
+				'app_version': pjson.version, 
+				'page': 'search.ejs', 
+				'footer': 'dashboard-search',
+				'isInstructor': req.user.isInstructor,
+				'activeClasses': new_activeClasses,
+				'exercise_types': result.exercise_types,
+				'users': result.users
+				});
+
 			});
 
 		}
@@ -283,7 +349,8 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 				'app_version': pjson.version, 
 				'page': 'dashboard.ejs', 
 				'footer': 'dashboard-search',
-				'isInstructor': req.user.isInstructor
+				'isInstructor': req.user.isInstructor,
+				'username': req.user.displayName
 			});
 		}
 		else {
@@ -300,15 +367,6 @@ app.get('/upcoming*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed, get classes
-
-
-			/*res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'upcoming.ejs', 
-				'footer': 'upcoming',
-				'isInstructor': req.user.isInstructor
-			});*/
-
 			var connection = mysql.createConnection({
 				host: config.db.host,
 				user: config.db.username,
@@ -353,11 +411,59 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
-			res.render("account", {
+			//now grab their current classes if any
+			async.parallel({
+				classes: function(callback){
+					doQuery(`SELECT * FROM classes WHERE instructor_id = ${req.user.db_id}`, function(data){
+						callback(null, data);
+					});
+				},
+				exercise_types: function(callback){
+					doQuery('SELECT * FROM exercise_types', function(data){
+						callback(null, data);
+					});
+				},
+				class_times: function(callback){
+					doQuery(`SELECT * FROM class_times WHERE instructor_id = ${req.user.db_id}`, function(data){
+						callback(null, data);
+					});
+				}
+			}, function(err, result){
+				var activeClasses = [];
+				var inactiveClasses = [];
+				for(var i = 0; i < result.classes.length; i++){
+					if(result.classes[i].isActive > 0){
+						activeClasses.push(result.classes[i]);
+					} else {
+						inactiveClasses.push(result.classes[i]);
+					}
+				}
+
+				var new_activeClasses = [];
+				for(var j = 0; j < result.class_times.length; j++){
+					var class_id = result.class_times[j].class_id;
+
+					for(var k = 0; k < activeClasses.length; k++){
+					 	
+					 	if(activeClasses[k].id == class_id){
+					 		new_activeClasses.push(activeClasses[k]);
+					 		activeClasses[k].date = result.class_times[j].date;
+					 		activeClasses[k].isRepeating = result.class_times[j].isRepeating;
+					 		break;
+					 	}
+					}
+				}
+
+				res.render("account", {
 				'app_version': pjson.version, 
 				'page': 'addclass.ejs', 
 				'footer': 'addclass',
-				'isInstructor': req.user.isInstructor
+				'isInstructor': req.user.isInstructor,
+				'activeClasses': new_activeClasses,
+				'inactiveClasses': inactiveClasses,
+				'exercise_types': result.exercise_types
+				});
+
 			});
 		}
 		else {
@@ -905,6 +1011,61 @@ app.post('/post/updateclass', ensureAuthenticated, function(req, res){
 	var class_data = req.body;
 	console.log(class_data);
 	res.send('update class');
+});
+
+//get a single class
+app.post('/post/getclass*', ensureAuthenticated, function(req,res){
+	if(req.query.id) {
+		//get info from database.
+		async.parallel({
+			class: function(callback){
+				doQuery(`SELECT * FROM classes WHERE id = ${req.query.id}`, function(data){
+					callback(null, data);
+				});
+			},
+			class_times: function(callback){
+				doQuery(`SELECT * FROM class_times WHERE class_id = ${req.query.id}`, function(data){
+					callback(null, data);
+				});
+			}
+		}, function(err, result){
+
+			res.json({
+				class: result.class[0],
+				class_times: result.class_times
+			});
+
+		});
+	}
+	else {
+		//todo: need to throw error
+		res.send('getclass s');
+	}
+});
+
+app.post('/post/saveschedule', ensureAuthenticated, function(req, res){
+	//console.log(req.body);
+
+	//check input
+	var class_id = req.body.id;
+
+	for(var i = 0; i < req.body.new_classes.length; i++){
+		var timedate = req.body.new_classes[i].time;
+		var isRepeating = req.body.new_classes[i].isRepeating;
+		if(isRepeating == true) { 
+			isRepeating = 1
+		} else {
+			isRepeating = 0;
+		}
+		doQuery(`INSERT INTO class_times (class_id, date, isRepeating, instructor_id) VALUES('${class_id}', '${timedate}', '${isRepeating}', '${req.user.db_id}')`, function(){
+			//set class to be active now
+			doQuery(`UPDATE classes SET isActive=1 WHERE id = '${class_id}'`, function(){
+				//console.log('insert success');
+			});
+		});
+	}
+
+	res.send('success');
 });
 
 //

@@ -1,5 +1,98 @@
-<div class="card" align="center" style="margin-top: 100px;" id="starting-card">
-	<span class='title'>Create and<br> schedule a<br> class.</span>
+<div class="card" align="center">
+	<span class='title'>Your classes</span>
 	<div class="divider-15"></div>
 	<a href="/createclass"><button class='grey-btn'>Create class</button></a>
 </div>
+
+<div class="card">
+	<h2>Your Active Classes</h2>
+	<span class='title'>Scheduled and searchable by students.</span>
+	<div class="divider-15"></div>
+	<% if(activeClasses.length > 0) { %>
+		<% for(var i = 0; i < activeClasses.length; i++) { %>
+		<div class="class-card">
+			<div class="class-card-header">
+				<div style="display: inline-block; width: 50%;">
+					<%= activeClasses[i].max_students %> slots
+				</div><!--
+				--><div style="display: inline-block; width: 50%; text-align: right;">
+					More Info &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i>
+				</div>
+			</div>
+			<div class="class-card-table">
+				<div style="display: inline-block; margin-right: 20px;">
+					<b style="text-transform: uppercase;">
+					<% if(activeClasses[i].date ) { %> 
+						<span class="activeTime"><%= activeClasses[i].date %></span>
+					<% } else { %>
+						unscheduled
+					<% } %>
+					</b><br>
+					<%=activeClasses[i].length_class%> min<br>
+					$<%=activeClasses[i].price%>
+				</div><!--
+				--><div style="display: inline-block;">
+					<b><%=activeClasses[i].title%></b><br>
+					<span style="text-transform: capitalize;"><%=exercise_types[activeClasses[i].type_class].name%></span><br>
+					<i class="fa fa-map-marker" aria-hidden="true"></i> Location
+				</div>
+			</div>
+		</div><br>
+		<% } %>
+	<% } else  { %>
+		<div class="none-class-card">
+			None
+		</div>
+	<% } %>
+</div>
+
+<div class="card">
+	<h2>Your Non-active Classes</h2>
+	<span class='title'>Not scheduled.</span>
+	<div class="divider-15"></div>
+	<% if(inactiveClasses.length > 0) { %>
+
+		<% for(var i = 0; i < inactiveClasses.length; i++) { %>
+		<div class="class-card">
+			<div class="class-card-header">
+				<div style="display: inline-block; width: 50%;">
+					<%= inactiveClasses[i].max_students %> slots
+				</div><!--
+				--><div style="display: inline-block; width: 50%; text-align: right;">
+					More Info &nbsp; <i class="fa fa-caret-right" aria-hidden="true"></i>
+				</div>
+			</div>
+			<div class="class-card-table">
+				<div style="display: inline-block; margin-right: 20px;">
+					<b style="text-transform: uppercase;">
+					<% if(inactiveClasses.date == null ) { %> 
+						Unscheduled
+					<% } else { %>
+						<%= inactiveClasses.start_time %>
+					<% } %>
+					</b><br>
+					<%=inactiveClasses[i].length_class%> min<br>
+					$<%=inactiveClasses[i].price%>
+				</div><!--
+				--><div style="display: inline-block;">
+					<b><%=inactiveClasses[i].title%></b><br>
+					<span style="text-transform: capitalize;"><%=exercise_types[inactiveClasses[i].type_class].name%></span><br>
+					<i class="fa fa-map-marker" aria-hidden="true"></i> Location
+				</div>
+			</div>
+		</div><br>
+		<% } %>
+
+	<% } else  { %>
+		<div class="none-class-card">
+			None
+		</div>
+	<% } %>
+</div>
+
+<script>
+$('.activeTime').each(function(i, obj){
+	var date = $(obj).html();
+	$(obj).html(moment(date).format('hh:mma ddd MMMM Do'));
+});
+</script>

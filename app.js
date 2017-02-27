@@ -23,6 +23,7 @@ app.use(bodyParser.json()); // support json encoded bodies
 
 var mysql = require('mysql');
 //pooling
+// connects application to some hosted mysql database
 //https://codeforgeek.com/2015/01/nodejs-mysql-tutorial/
 var pool = mysql.createPool({
 	connectionLimit: config.db.connectionLimit,
@@ -31,9 +32,11 @@ var pool = mysql.createPool({
 	password: config.db.password,
 	database: config.db.database,
 	debug: false,
+	socketPath: '~/fitted-web/node_modules/mysql/FITTED_DB12-4-16.sql'
 });
 
-//generic query func
+//generic query func.
+// use this as base to execute any given query. Checks to see if it can connect to the DB, returns error if not
 function doQuery(query, callback){
 
 	pool.getConnection( function(err, connection){
@@ -73,9 +76,11 @@ function doQuery(query, callback){
 
 
 //set up Passport session
+//facebook authentication--saves log-ins as passport 'sessions'
 passport.serializeUser(function(user, done){
 	done(null, user);
 });
+// notes when they log out
 passport.deserializeUser(function(obj, done){
 	done(null, obj);
 });
@@ -86,6 +91,7 @@ passport.deserializeUser(function(obj, done){
 	but it doesn't seem to want to allow me to update
 	a session after it's already been created.
 */
+//  checks to see if the corresponding id has value 'confirmed' in the DB
 function checkConfirmed(db_id, callback){
 	var connection = mysql.createConnection({
 			host: config.db.host,
@@ -150,6 +156,7 @@ function insertNewUser(facebook_id, callback){
 	//return id;
 }
 
+//actual authentication from facebook, uses previously defined helper funcs.
 passport.use(new FacebookStrategy({
 	clientID: config.facebook.api_id,
 	clientSecret: config.facebook.api_secret,
@@ -176,7 +183,7 @@ passport.use(new FacebookStrategy({
 				var user_obj = {};
 				user_obj['id'] = profile.id;
 				user_obj['displayName'] = profile.displayName;
-				
+
 				connection.end();
 				if(!err){
 					if(row.length <= 0){
@@ -231,6 +238,8 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 				break;
 		}
 	}
+
+//permissions requested from user facebook profile
 	passport.authenticate('facebook', {
 		callbackURL: req_url,
 		successRedirect: redirect_url,
@@ -239,6 +248,8 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 	})(req, res, next)
 });
 
+
+//authenticate requests
 app.get('/auth/facebook*', function(req, res, next){
 	//get param page from url
 	var hostname = req.headers.host;
@@ -265,7 +276,11 @@ app.get('/login', function(req, res){
 /*
 * Main app
 */
-app.get('/search*', ensureAuthenticated, function(req, res){ 
+/* ensures authentication upon log-in, and if authenticated, begins filling out application with
+* instructor's info (exercise types, classes, class times). Separates into active v. inactive classes.
+* Loads page w/ ejs file search. Otherwise, if the user is not authenticated, it redirects to the registration page.
+*/
+app.get('/search*', ensureAuthenticated, function(req, res){
 //needs to be rewritten, this is just a base
 
 	checkConfirmed(req.user.db_id, function(returnVal){
@@ -309,7 +324,7 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 					var class_id = result.class_times[j].class_id;
 
 					for(var k = 0; k < activeClasses.length; k++){
-					 	
+
 					 	if(activeClasses[k].id == class_id){
 					 		new_activeClasses.push(activeClasses[k]);
 					 		activeClasses[k].date = result.class_times[j].date;
@@ -320,8 +335,8 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 				}
 
 				res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'search.ejs', 
+				'app_version': pjson.version,
+				'page': 'search.ejs',
 				'footer': 'dashboard-search',
 				'isInstructor': req.user.isInstructor,
 				'activeClasses': new_activeClasses,
@@ -340,14 +355,15 @@ app.get('/search*', ensureAuthenticated, function(req, res){
 
 });
 
+// loads dashboard.ejs if user is authenticated
 app.get('/dashboard*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
 			//user is confirmed
 			res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'dashboard.ejs', 
+				'app_version': pjson.version,
+				'page': 'dashboard.ejs',
 				'footer': 'dashboard-search',
 				'isInstructor': req.user.isInstructor,
 				'username': req.user.displayName
@@ -361,7 +377,7 @@ app.get('/dashboard*', ensureAuthenticated, function(req, res){
 
 });
 
-
+// loads upcoming page if user is authenticated and is a valid instructor
 app.get('/upcoming*', ensureAuthenticated, function(req, res){
 
 	checkConfirmed(req.user.db_id, function(returnVal){
@@ -390,8 +406,8 @@ app.get('/upcoming*', ensureAuthenticated, function(req, res){
 				}
 
 				res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'upcoming.ejs', 
+				'app_version': pjson.version,
+				'page': 'upcoming.ejs',
 				'footer': 'upcoming',
 				'isInstructor': req.user.isInstructor,
 				'hasClasses': hasClasses
@@ -407,6 +423,8 @@ app.get('/upcoming*', ensureAuthenticated, function(req, res){
 
 });
 
+
+// add class page is loaded,
 app.get('/addclass*', ensureAuthenticated, function(req, res){
 	checkConfirmed(req.user.db_id, function(returnVal){
 		if(returnVal >= 1){
@@ -444,7 +462,7 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 					var class_id = result.class_times[j].class_id;
 
 					for(var k = 0; k < activeClasses.length; k++){
-					 	
+
 					 	if(activeClasses[k].id == class_id){
 					 		new_activeClasses.push(activeClasses[k]);
 					 		activeClasses[k].date = result.class_times[j].date;
@@ -455,8 +473,8 @@ app.get('/addclass*', ensureAuthenticated, function(req, res){
 				}
 
 				res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'addclass.ejs', 
+				'app_version': pjson.version,
+				'page': 'addclass.ejs',
 				'footer': 'addclass',
 				'isInstructor': req.user.isInstructor,
 				'activeClasses': new_activeClasses,
@@ -502,8 +520,8 @@ app.get('/profile*', ensureAuthenticated, function(req, res){
 					//console.log(class_preferences);
 					//res.render("account/profile", {'app_version': pjson.version, 'user': row[0], 'class_preferences': class_preferences});
 					res.render("account", {
-						'app_version': pjson.version, 
-						'page': 'profile.ejs', 
+						'app_version': pjson.version,
+						'page': 'profile.ejs',
 						'footer': 'profile',
 						'isInstructor': req.user.isInstructor,
 						'user': row[0],
@@ -557,8 +575,8 @@ app.get('/scheduleclass*', ensureAuthenticated, function(req, res){
 				}
 
 				res.render("account", {
-				'app_version': pjson.version, 
-				'page': 'schedule_class.ejs', 
+				'app_version': pjson.version,
+				'page': 'schedule_class.ejs',
 				'footer': 'upcoming',
 				'isInstructor': req.user.isInstructor,
 				'classes': classes
@@ -587,8 +605,8 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 			if(req.user.isInstructor >= 1){
 				getClassPreferences(req.user.db_id, function(class_preferences){
 					res.render("account", {
-						'app_version': pjson.version, 
-						'page': 'createclass.ejs', 
+						'app_version': pjson.version,
+						'page': 'createclass.ejs',
 						'footer': 'addclass',
 						'isInstructor': req.user.isInstructor,
 						'class_preferences': class_preferences,
@@ -607,6 +625,8 @@ app.get('/createclass*', ensureAuthenticated, function(req, res){
 
 });
 
+// TO DO: add sql injection check/sanitize DB here
+// will house the preview class before posting page
 app.post('/post/previewclass', ensureAuthenticated, function(req, res){
 	var data = req.body;
 	//sql injection check here
@@ -637,9 +657,10 @@ app.post('/post/previewclass', ensureAuthenticated, function(req, res){
 
 });*/
 
+// intructor history page
 app.get('/history', ensureAuthenticated, function(req, res){
 	res.render("account", {
-						'app_version': pjson.version, 
+						'app_version': pjson.version,
 						'page': 'history.ejs',
 						'isInstructor': req.user.isInstructor,
 						'footer': 'addclass',
@@ -707,8 +728,9 @@ app.get('/register', ensureAuthenticated, function(req, res){
 });
 
 
+// Current Date + Time func.
 (function() {
-	Date.prototype.getMySQL = getMySQLDateTime;	
+	Date.prototype.getMySQL = getMySQLDateTime;
 	function getMySQLDateTime() {
 		var year, month, day, hours, minutes, seconds;
 		year = String(this.getFullYear());
@@ -762,7 +784,7 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	var description = data.description;
 	var selected_exercises = data.selected_exercises;
 
-	//sql injection vulnerablity-fix this
+	//TO DO: sql injection vulnerablity-fix this
 	/*var new_user = `UPDATE users SET (reg_date, display_name, email, birthdate, location, confirmed) ` +
 		`VALUES( NOW(), '${display_name}', '${email}', '${birthdate}', '${location}', 1 ) WHERE facebook_id = '${req.user.id}'`*/
 
@@ -771,12 +793,12 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	//create user in database and fill in fields
 	connection.query( new_user, function(err, row, fields){
 		if(!err){
-	        //now add regclass prefs
+	        //now add regclass prefs to user/client profile
 	        for(var i = 0; i < selected_exercises.length; i++){
 				var query = `INSERT INTO user_class_preferences (user_id, exercise_type_id) VALUES('${req.user.db_id}', '${selected_exercises[i]}')`;
 
 				connection.query(query, function(err, row, fields){
-					
+
 					if(err) {
 						console.log(err);
 						//res.send('err');
@@ -800,6 +822,7 @@ app.post('/regcomplete', ensureAuthenticated, function(req, res){
 	});
 });
 
+// gets preferred exercise types for user profile
 app.get('/regclassprefs', ensureAuthenticated, function(req, res){
 	var connection = mysql.createConnection({
 	host: config.db.host,
@@ -830,6 +853,7 @@ app.get('/regclassprefs', ensureAuthenticated, function(req, res){
 
 });
 
+// actually adds exercise type prefs. to DB
 app.post('/regclassprefscomplete', ensureAuthenticated, function(req, res){
 	var data = req.body;
 
@@ -845,7 +869,7 @@ app.post('/regclassprefscomplete', ensureAuthenticated, function(req, res){
 		var query = `INSERT INTO user_class_preferences (user_id, exercise_type_id) VALUES('${req.user.db_id}', '${data[i]}')`;
 
 		connection.query(query, function(err, row, fields){
-			
+
 			if(err) console.log(err);
 			else {
 				//res.send("success");
@@ -895,7 +919,7 @@ function getClassPreferences(db_id, callback){
 		connection.query(query, function(err, row, fields){
 			connection.end();
 			if(!err){
-				
+
 				//build data object from this
 				var class_preferences = {};
 
@@ -989,8 +1013,8 @@ app.post('/post/createclass', ensureAuthenticated, function(req, res){
 		database: config.db.database,
 	});
 	connection.connect();
-	var query = `INSERT INTO classes 
-		(instructor_id, type_class, length_class, start_time, price, max_students, title, description, location) 
+	var query = `INSERT INTO classes
+		(instructor_id, type_class, length_class, start_time, price, max_students, title, description, location)
 		VALUES('${req.user.db_id}', '${class_type}', '${class_length}', '${test_time}', '${class_price}', '${class_students}', '${class_data.title}', '${class_data.description}', '${class_data.location}') `;
 
 	connection.query(query, function(err, rows){
@@ -1052,7 +1076,7 @@ app.post('/post/saveschedule', ensureAuthenticated, function(req, res){
 	for(var i = 0; i < req.body.new_classes.length; i++){
 		var timedate = req.body.new_classes[i].time;
 		var isRepeating = req.body.new_classes[i].isRepeating;
-		if(isRepeating == true) { 
+		if(isRepeating == true) {
 			isRepeating = 1
 		} else {
 			isRepeating = 0;

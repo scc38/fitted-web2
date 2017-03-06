@@ -14,6 +14,27 @@ var pjson = require('./package.json'); //for version number
 
 var app = express();
 
+
+
+
+
+
+// function initFirebase() {
+
+// 	src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js";
+
+// 	var config = {
+//     apiKey: "AIzaSyDAne0IGzGSGg9FSeWZrGfuBNHaFuBDuJc",
+//     authDomain: "fitted-8a0c7.firebaseapp.com",
+//     databaseURL: "https://fitted-8a0c7.firebaseio.com",
+//     storageBucket: "fitted-8a0c7.appspot.com",
+//     messagingSenderId: "785232504042"
+//   };
+
+//   firebase.initializeApp(config);
+// }
+
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs')
 app.use('/static', express.static('public'));
@@ -241,6 +262,7 @@ app.get('/auth/facebook/callback*', function(req, res, next){
 
 app.get('/auth/facebook*', function(req, res, next){
 	//get param page from url
+
 	var hostname = req.headers.host;
 	var page = req.query.p;
 	var req_url = 'http://' + hostname + '/auth/facebook/callback';
@@ -252,6 +274,7 @@ app.get('/auth/facebook*', function(req, res, next){
 		callbackURL: req_url,
 	})(req, res, next);
 });
+
 
 app.get('/logout', function(req, res){
 	req.logout();
@@ -654,6 +677,8 @@ app.get('/register', ensureAuthenticated, function(req, res){
 	*/
 
 	checkConfirmed(req.user.db_id, function(returnVal){
+
+
 		if(returnVal >= 1){
 			//user is confirmed
 			res.redirect('/upcoming');

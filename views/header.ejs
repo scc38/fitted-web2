@@ -11,6 +11,37 @@
   <script src="../static/js/slick.min.js"></script>
   <script src='../static/js/fullcalendar.min.js'></script>
   <script src="../static/js/jquery.timepicker.min.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/3.7.0/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyDAne0IGzGSGg9FSeWZrGfuBNHaFuBDuJc",
+      authDomain: "fitted-8a0c7.firebaseapp.com",
+      databaseURL: "https://fitted-8a0c7.firebaseio.com",
+      storageBucket: "fitted-8a0c7.appspot.com",
+      messagingSenderId: "785232504042"
+    };
+    firebase.initializeApp(config);
+
+
+    function writeUserData() {
+
+      console.log("Write user data");
+
+      var dataRef = firebase.database().ref();
+
+      var first = "Xander";
+      var last = "Tsang";
+
+      dataRef.set({"fname":first, "lname":last});
+    }
+</script>
+
+
+
+
+
 	
 	<link rel="stylesheet" type="text/css" href="../static/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" type="text/css" href="../static/css/bootstrap.min.css">
